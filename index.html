@@ -23,10 +23,13 @@ body{font-family:"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",system-ui,s
 .hgroup{display:flex;gap:8px;align-items:center}
 .btn{font:inherit;font-weight:700;border:0;border-radius:999px;padding:.55em 1.3em;font-size:clamp(20px,4vw,30px);color:#fff;background:var(--pink);box-shadow:0 6px 0 rgba(0,0,0,.18);cursor:pointer;transition:transform .1s,box-shadow .1s}
 .btn:active{transform:translateY(5px);box-shadow:0 1px 0 rgba(0,0,0,.18)}
+.btn:disabled{opacity:.4;pointer-events:none}
 .btn.mint{background:var(--mint)}
 .btn.sun{background:var(--sun);color:#6b4a00}
 .btn.sky{background:var(--sky)}
 .btn.grape{background:var(--grape)}
+.btn.sm{font-size:16px;padding:.5em 1.1em}
+.btn.recording{background:#e53935;animation:pulse .8s ease-in-out infinite}
 .round{width:52px;height:52px;border-radius:50%;font-size:26px;padding:0;display:grid;place-items:center;background:#fff;color:var(--ink)}
 .pill{background:#fff;border-radius:999px;padding:6px 16px;font-weight:700;font-size:26px;box-shadow:0 5px 0 rgba(0,0,0,.12);display:flex;gap:6px;align-items:center}
 .pill.pop{animation:popin .5s}
@@ -129,6 +132,16 @@ body{font-family:"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",system-ui,s
 .help li{margin:5px 0}
 .help .row{justify-content:center;margin-top:12px}
 .tiny{font-size:14px}
+.rec{animation:none}
+.rec h2{margin-bottom:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0}
+.chip{min-width:44px;height:44px;border:0;border-radius:14px;font:inherit;font-weight:700;font-size:20px;padding:0 8px;background:#e9e4f5;color:var(--ink);box-shadow:0 3px 0 rgba(0,0,0,.15);cursor:pointer}
+.chip.ok{background:#bff3d6}
+.chip.sel{outline:4px solid var(--sun)}
+.recbox{background:#f3edff;border-radius:28px;padding:12px 10px 16px;margin:8px 0}
+.recbig{font-size:clamp(60px,17vw,100px);font-weight:700;line-height:1.05;color:var(--pink)}
+.rechint{font-size:clamp(15px,3.2vw,19px);margin:4px 0 12px}
+.recmsg{min-height:1.6em;font-weight:600;font-size:clamp(15px,3.2vw,19px);margin:10px 0 4px}
 #fx{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
 .conf{position:absolute;top:0;animation:fall linear forwards}
 .spark{position:absolute;font-size:30px;transform:translate(-50%,-50%);animation:rise .8s ease-out forwards}
@@ -145,6 +158,7 @@ body{font-family:"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",system-ui,s
 @keyframes fall{from{transform:translateY(-10vh) rotate(0)}to{transform:translateY(112vh) rotate(540deg)}}
 @keyframes rise{from{opacity:1;transform:translate(-50%,-50%) scale(.6)}to{opacity:0;transform:translate(-50%,-150%) scale(1.4)}}
 @keyframes glow{0%,100%{filter:drop-shadow(0 0 0 #ffc93c)}50%{filter:drop-shadow(0 0 16px #ffb300) brightness(1.15)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
 </style>
 </head>
 <body>
@@ -182,6 +196,7 @@ body{font-family:"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",system-ui,s
   <button class="card" data-game="read" style="background:#f29a2e"><span class="ic">📖</span>Read &amp; Match<small>Read the word</small></button>
   <button class="card" data-game="park" style="background:#3fcf94"><span class="ic">🦖</span>Dino Park<small>Meet your friends</small></button>
  </div>
+ <div class="row"><button class="btn sky sm" id="recLink"></button></div>
 </section>
 
 <section class="screen" id="game">
@@ -200,15 +215,17 @@ body{font-family:"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",system-ui,s
 <div id="fx"></div>
 
 <script>
-const VERSION="1.0";
-const BUILT="2026-10-01 10:27 PDT";
+const VERSION="1.1";
+const BUILT="2026-10-01 11:05 PDT";
 const ROUNDS=5;
 const CHEERS=["Yay!","Roar-some!","You did it!","Dino-mite!","Great job!","Wow!"];
 const EGGC=["#ff8fbf","#6fc8ff","#ffc94d","#b39bff","#5fdca8"];
 const LTRC=["#ff6b9d","#ff9a4d","#f2b800","#3fbf6a","#3aa8ff","#a070f0"];
 const LETTERS="abcdefghijklmnopqrstuvwxyz".split("");
+const DIGW={sh:"ship",ch:"chip",oo:"moon",ee:"tree",ar:"star",ck:"duck"};
+const KEYS=LETTERS.concat(Object.keys(DIGW));
 const NAME={a:"ay",b:"bee",c:"see",d:"dee",e:"ee",f:"eff",g:"jee",h:"aitch",i:"eye",j:"jay",k:"kay",l:"el",m:"em",n:"en",o:"oh",p:"pee",q:"cue",r:"are",s:"ess",t:"tee",u:"you",v:"vee",w:"double you",x:"ex",y:"why",z:"zee"};
-const SOUND={a:"aa",b:"buh",c:"kuh",d:"duh",e:"eh",f:"fff",g:"guh",h:"huh",i:"ih",j:"juh",k:"kuh",l:"lll",m:"mmm",n:"nnn",o:"ah",p:"puh",q:"kwuh",r:"rrr",s:"sss",t:"tuh",u:"uh",v:"vvv",w:"wuh",x:"ks",y:"yuh",z:"zzz",sh:"shh",ch:"chh",oo:"ooo",ee:"eee",ar:"arr",ck:"kuh"};
+const SOUND={a:"aa",b:"bah",c:"kah",d:"dah",e:"eh",f:"fff",g:"gah",h:"hah",i:"ih",j:"jah",k:"kah",l:"lah",m:"mmm",n:"nnn",o:"ah",p:"pah",q:"kwah",r:"rrr",s:"sss",t:"tah",u:"uh",v:"vvv",w:"wah",x:"ks",y:"yah",z:"zzz",sh:"shh",ch:"chh",oo:"ooo",ee:"eee",ar:"arr",ck:"kah"};
 const PIC={a:["apple","🍎"],b:["bone","🦴"],c:["cat","🐱"],d:["dino","🦕"],e:["egg","🥚"],f:["fish","🐟"],g:["grass","🌿"],h:["hat","🎩"],i:["iguana","🦎"],j:["jet","✈️"],k:["kite","🪁"],l:["leaf","🍃"],m:["moon","🌙"],n:["nut","🥜"],o:["octopus","🐙"],p:["pig","🐷"],q:["queen","👑"],r:["rainbow","🌈"],s:["sun","☀️"],t:["tree","🌳"],u:["umbrella","☂️"],v:["volcano","🌋"],w:["whale","🐳"],x:["fox","🦊"],y:["yarn","🧶"],z:["zebra","🦓"]};
 const SAFARI=LETTERS.filter(l=>l!=="x");
 const EASY=[
@@ -233,7 +250,8 @@ const DINOS=[
  {id:"spiny",name:"Spiny",kind:"spiny",color:"#2ec4b6",accent:"#ff9f1c",need:100}
 ];
 const HISTORY=[
- ["1.0","2026-10-01","First version: title screen, Letter Eggs, Sound Safari, Build a Word, Read &amp; Match, Dino Park with 6 dinos to unlock, stars, sounds, voice and this help."]
+ ["1.0","2026-10-01","First version: title screen, Letter Eggs, Sound Safari, Build a Word, Read &amp; Match, Dino Park with 6 dinos to unlock, stars, sounds, voice and this help."],
+ ["1.1","2026-10-01","Real letter sounds! Grown-ups can record all 32 sounds with the microphone. They are saved on the device and used in every game instead of the computer voice. Letter Eggs now says the letter, then its sound, then the picture word."]
 ];
 
 const $=s=>document.querySelector(s);
@@ -250,6 +268,9 @@ let soundOn=store.get("sound",true);
 let buddyId=store.get("buddy","rex");
 let run=0,current="title",repeatFn=null,earned=0,bubT=null;
 const pendingUnlocks=[];
+const REC={open:false,sel:"a",mr:null,stream:null,timer:null,msg:""};
+const clips={};
+let curSrc=null;
 
 let ctx=null;
 function ac(){
@@ -290,11 +311,16 @@ function pickVoice(){
  voice=vs.find(v=>/^en[-_](US|GB|AU)/i.test(v.lang)&&/(samantha|zira|google us english|female|karen|moira|aria|jenny|ava|allison)/i.test(v.name))||vs.find(v=>/^en/i.test(v.lang))||null;
 }
 if("speechSynthesis" in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+function stopClip(){
+ const s=curSrc;curSrc=null;
+ if(s){try{s.stop();}catch(e){}}
+}
 function say(text,opts){
  opts=opts||{};
  return new Promise(res=>{
   if(!soundOn||!("speechSynthesis" in window)){setTimeout(res,opts.fallback||600);return;}
   try{
+   stopClip();
    speechSynthesis.cancel();
    const u=new SpeechSynthesisUtterance(text);
    if(voice)u.voice=voice;
@@ -307,7 +333,141 @@ function say(text,opts){
   }catch(e){res();}
  });
 }
-function stopSpeech(){try{if("speechSynthesis" in window)speechSynthesis.cancel();}catch(e){}}
+function stopSpeech(){
+ stopClip();
+ try{if("speechSynthesis" in window)speechSynthesis.cancel();}catch(e){}
+}
+
+let dbp=null;
+function db(){
+ if(!dbp){
+  dbp=new Promise((ok,bad)=>{
+   try{
+    const r=indexedDB.open("lilysaurus",1);
+    r.onupgradeneeded=()=>{r.result.createObjectStore("clips");};
+    r.onsuccess=()=>ok(r.result);
+    r.onerror=()=>bad(r.error);
+   }catch(e){bad(e);}
+  });
+ }
+ return dbp;
+}
+async function clipPut(key,rec){
+ const d=await db();
+ return new Promise((ok,bad)=>{
+  const tx=d.transaction("clips","readwrite");
+  tx.objectStore("clips").put(rec,key);
+  tx.oncomplete=()=>ok();
+  tx.onerror=()=>bad(tx.error);
+  tx.onabort=()=>bad(tx.error);
+ });
+}
+async function clipDel(key){
+ const d=await db();
+ return new Promise((ok,bad)=>{
+  const tx=d.transaction("clips","readwrite");
+  tx.objectStore("clips").delete(key);
+  tx.oncomplete=()=>ok();
+  tx.onerror=()=>bad(tx.error);
+  tx.onabort=()=>bad(tx.error);
+ });
+}
+async function clipRows(){
+ const d=await db();
+ return new Promise((ok,bad)=>{
+  const out=[];
+  const rq=d.transaction("clips","readonly").objectStore("clips").openCursor();
+  rq.onsuccess=()=>{const c=rq.result;if(c){out.push([c.key,c.value]);c.continue();}else ok(out);};
+  rq.onerror=()=>bad(rq.error);
+ });
+}
+function decode(buf){
+ const x=ac();
+ return new Promise((ok,bad)=>{
+  try{
+   const p=x.decodeAudioData(buf,ok,bad);
+   if(p&&p.then)p.then(ok,bad);
+  }catch(e){bad(e);}
+ });
+}
+function analyse(b){
+ const d=b.getChannelData(0),n=d.length,sr=b.sampleRate;
+ let peak=0;
+ for(let i=0;i<n;i++){const v=Math.abs(d[i]);if(v>peak)peak=v;}
+ const th=Math.max(0.012,peak*0.08);
+ let s=0;
+ while(s<n&&Math.abs(d[s])<th)s++;
+ let e=n-1;
+ while(e>s&&Math.abs(d[e])<th)e--;
+ const pad=Math.floor(sr*0.04);
+ s=Math.max(0,s-pad);
+ e=Math.min(n-1,e+pad*2);
+ return {peak:peak,start:s/sr,dur:Math.max(0.12,(e-s)/sr),gain:peak>0?Math.min(6,0.9/peak):1};
+}
+async function prepClip(key,rec,strict){
+ let info=null;
+ try{
+  const b=await decode(rec.buf.slice(0));
+  info=analyse(b);
+  if(strict&&info.peak<0.03)return false;
+  clips[key]={buf:b,start:info.start,dur:info.dur,gain:info.gain};
+  return true;
+ }catch(e){
+  try{
+   const url=URL.createObjectURL(new Blob([rec.buf],{type:rec.type||"audio/webm"}));
+   clips[key]={url:url};
+   return true;
+  }catch(e2){return false;}
+ }
+}
+async function loadClips(){
+ try{
+  const rows=await clipRows();
+  for(const r of rows){await prepClip(r[0],r[1],false);}
+ }catch(e){}
+ refreshRecBadge();
+}
+function playClip(key){
+ return new Promise(res=>{
+  const c=clips[key];
+  if(!c){res();return;}
+  stopClip();
+  if(c.buf){
+   const x=ac();
+   if(!x){res();return;}
+   const s=x.createBufferSource(),g=x.createGain();
+   s.buffer=c.buf;
+   const t=x.currentTime+0.02;
+   g.gain.setValueAtTime(0.0001,t);
+   g.gain.linearRampToValueAtTime(c.gain,t+0.012);
+   g.gain.setValueAtTime(c.gain,t+Math.max(0.013,c.dur-0.03));
+   g.gain.linearRampToValueAtTime(0.0001,t+c.dur);
+   s.connect(g);g.connect(x.destination);
+   let fin=false;
+   const end=()=>{if(!fin){fin=true;if(curSrc===s)curSrc=null;res();}};
+   s.onended=end;
+   setTimeout(end,c.dur*1000+500);
+   curSrc=s;
+   s.start(t,c.start,c.dur);
+  }else if(c.url){
+   const a=new Audio(c.url);
+   let fin=false;
+   const end=()=>{if(!fin){fin=true;res();}};
+   a.onended=end;a.onerror=end;
+   setTimeout(end,4000);
+   curSrc={stop(){try{a.pause();}catch(e){}end();}};
+   a.play().catch(end);
+  }else res();
+ });
+}
+async function sound(key,opts){
+ if(clips[key]&&soundOn){
+  await playClip(key);
+  await wait(70);
+  return;
+ }
+ await say(SOUND[key],opts);
+}
 
 function confetti(n){
  const box=$("#fx");const em=["⭐","✨","🎉","💖","🌟","🦕","🌈","🥚"];
@@ -425,7 +585,10 @@ function show(id){
 function openModal(html,closable){
  const o=$("#overlay");o.innerHTML=html;o.dataset.close=closable?"1":"0";o.classList.add("on");
 }
-function closeModal(){const o=$("#overlay");o.classList.remove("on");o.innerHTML="";}
+function closeModal(){
+ const o=$("#overlay");o.classList.remove("on");o.innerHTML="";
+ REC.open=false;releaseStream();
+}
 $("#overlay").addEventListener("click",e=>{if(e.target.id==="overlay"&&e.target.dataset.close==="1")closeModal();});
 
 function goHome(){
@@ -481,7 +644,15 @@ async function letterRound(t,target,opts){
     const p=PIC[target];
     $("#reveal").innerHTML=wordCard(p[0],p[1],target);
     const first=p[0].indexOf(target)===0;
-    await say(first?NAME[target]+" says "+SOUND[target]+". "+NAME[target]+" is for "+p[0]+"!":p[0]+" ends with "+NAME[target]+"!");
+    if(first){
+     await say(NAME[target]+".");
+     if(t!==run)return;
+     await sound(target);
+     if(t!==run)return;
+     await say(NAME[target]+" is for "+p[0]+"!");
+    }else{
+     await say(p[0]+" ends with "+NAME[target]+"!");
+    }
     await wait(500);
     done();
    }else{
@@ -535,7 +706,9 @@ async function safariRound(t,target){
     const w=word.split("").map((c,k)=>'<span class="'+(k===0?"hl":"")+'">'+c+'</span>').join("");
     $("#sw").innerHTML=w;
     cheerAll();addStar();
-    await say(SOUND[target]+", "+SOUND[target]+", "+word+"! "+word+" starts with "+NAME[target]+"!");
+    await sound(target);
+    if(t!==run)return;
+    await say(word+"! "+word+" starts with "+NAME[target]+"!");
     await wait(500);
     done();
    }else{
@@ -544,9 +717,12 @@ async function safariRound(t,target){
     mascotDo("shakeit","Listen again!");
     if(tries>=2){
      pads[target].classList.add("glow");
-     say("Listen. "+word+". "+SOUND[target]+", "+SOUND[target]+", "+word+".");
+     await say("Listen. "+word+".");
+     await sound(target);
+     await say(word+"!");
     }else{
-     say(SOUND[l]+"? Hmm, not quite. Try again!");
+     await sound(l);
+     await say("Hmm, not quite. Try again!");
     }
    }
   };
@@ -573,7 +749,8 @@ function extraTiles(parts,n){
 }
 async function hearSounds(item){
  await say(item.w);
- for(const p of item.p){await say(SOUND[p],{rate:.7});}
+ for(const p of item.p){await sound(p,{rate:.7});}
+ await say(item.w);
 }
 
 async function buildRound(t,item){
@@ -601,13 +778,13 @@ async function buildRound(t,item){
     slots[idx].textContent=part;slots[idx].classList.add("filled");
     sfx.pop();
     idx++;tries=0;
-    if(idx<parts.length){say(SOUND[part],{rate:.7});return;}
+    if(idx<parts.length){sound(part,{rate:.7});return;}
     locked=true;
     await wait(200);
     for(let k=0;k<parts.length;k++){
      if(t!==run)return;
      slots[k].classList.add("hl");
-     await say(SOUND[parts[k]],{rate:.7});
+     await sound(parts[k],{rate:.7});
      slots[k].classList.remove("hl");
     }
     if(t!==run)return;
@@ -620,8 +797,10 @@ async function buildRound(t,item){
     tries++;sfx.oops();
     b.classList.remove("wiggle");void b.offsetWidth;b.classList.add("wiggle");
     mascotDo("shakeit","Hmm...");
-    say("Listen for "+SOUND[parts[idx]]+". Try again!");
     if(tries>=2){tiles.forEach(x=>{if(x.textContent===parts[idx]&&!x.classList.contains("used"))x.classList.add("glow");});}
+    await say("Listen for");
+    await sound(parts[idx]);
+    await say("Try again!");
    }
   };
   $("#tiles").appendChild(b);
@@ -645,7 +824,7 @@ async function soundOut(item,wc){
  const spans=wc.querySelectorAll("span");
  for(let k=0;k<item.p.length;k++){
   spans[k].classList.add("hl");
-  await say(SOUND[item.p[k]],{rate:.7});
+  await sound(item.p[k],{rate:.7});
   spans[k].classList.remove("hl");
  }
  await say(item.w,{rate:.8});
@@ -791,18 +970,156 @@ async function parkTap(d,el,ok){
  }
 }
 
+function recCount(){return KEYS.filter(k=>clips[k]).length;}
+function refreshRecBadge(){
+ const n=recCount();
+ const b=$("#recLink");
+ b.style.display=n>=KEYS.length?"none":"";
+ b.textContent="🎙 Grown-up: record letter sounds ("+n+"/"+KEYS.length+")";
+}
+function recHint(k){
+ if(DIGW[k])return 'Say the sound in "'+DIGW[k]+'".';
+ if(k==="x")return 'Say the sound at the end of "fox".';
+ return 'Say the sound at the start of "'+PIC[k][0]+'". Just the sound, not the letter name. Keep it short.';
+}
+function recHTML(){
+ const k=REC.sel;
+ const has=!!clips[k];
+ const chips=KEYS.map(x=>'<button class="chip'+(clips[x]?" ok":"")+(x===k?" sel":"")+'" data-k="'+x+'">'+x+'</button>').join("");
+ return '<div class="modal rec"><h2>🎙 Record sounds</h2><div class="tiny">'+recCount()+' of '+KEYS.length+' recorded. They are saved on this device.</div>'+
+  '<div class="chips">'+chips+'</div>'+
+  '<div class="recbox"><div class="recbig">'+k+'</div><div class="rechint">'+recHint(k)+'</div>'+
+  '<div class="row"><button class="btn'+(REC.mr?" recording":"")+'" id="recGo">'+(REC.mr?"⏹ Stop":"⏺ Record")+'</button><button class="btn mint" id="recPlay"'+(has&&!REC.mr?"":" disabled")+'>▶ Play</button></div>'+
+  '<div class="row" style="margin-top:14px"><button class="btn sky sm" id="recNext"'+(REC.mr?" disabled":"")+'>Next sound ▶</button><button class="btn sun sm" id="recDel"'+(has&&!REC.mr?"":" disabled")+'>🗑 Delete</button></div></div>'+
+  '<div class="recmsg">'+REC.msg+'</div>'+
+  '<div class="row"><button class="btn mint" id="recDone">✔ Done</button></div></div>';
+}
+function recRender(){
+ if(!REC.open)return;
+ openModal(recHTML(),false);
+ bindRec();
+}
+function openRecorder(){
+ REC.open=true;REC.mr=null;REC.msg="";
+ REC.sel=KEYS.find(k=>!clips[k])||"a";
+ recRender();
+}
+function bindRec(){
+ document.querySelectorAll(".chip").forEach(b=>{
+  b.onclick=()=>{
+   if(REC.mr)return;
+   REC.sel=b.dataset.k;REC.msg="";recRender();
+   if(clips[REC.sel])playClip(REC.sel);
+  };
+ });
+ $("#recGo").onclick=()=>{ac();recToggle();};
+ $("#recPlay").onclick=()=>{ac();playClip(REC.sel);};
+ $("#recNext").onclick=()=>{
+  const i=KEYS.indexOf(REC.sel);
+  let n=null;
+  for(let s=1;s<=KEYS.length;s++){
+   const k=KEYS[(i+s)%KEYS.length];
+   if(!clips[k]){n=k;break;}
+  }
+  REC.sel=n||KEYS[(i+1)%KEYS.length];REC.msg="";recRender();
+ };
+ $("#recDel").onclick=async()=>{
+  if(!confirm("Delete this recording?"))return;
+  const k=REC.sel;
+  try{await clipDel(k);}catch(e){}
+  delete clips[k];
+  REC.msg="Deleted.";recRender();refreshRecBadge();
+ };
+ $("#recDone").onclick=()=>{
+  cancelRec();
+  closeModal();
+  refreshRecBadge();
+ };
+}
+async function getStream(){
+ if(REC.stream&&REC.stream.active)return REC.stream;
+ REC.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:true}});
+ return REC.stream;
+}
+function releaseStream(){
+ cancelRec();
+ if(REC.stream){REC.stream.getTracks().forEach(t=>t.stop());REC.stream=null;}
+}
+function recMime(){
+ const l=["audio/webm;codecs=opus","audio/mp4","audio/webm","audio/ogg;codecs=opus"];
+ for(const m of l){try{if(MediaRecorder.isTypeSupported(m))return m;}catch(e){}}
+ return "";
+}
+function cancelRec(){
+ clearTimeout(REC.timer);
+ const mr=REC.mr;REC.mr=null;
+ if(mr){mr.onstop=null;try{if(mr.state!=="inactive")mr.stop();}catch(e){}}
+}
+function stopRec(){
+ clearTimeout(REC.timer);
+ const mr=REC.mr;REC.mr=null;
+ if(mr&&mr.state!=="inactive"){try{mr.stop();}catch(e){}}
+ REC.msg="Saving...";
+ recRender();
+}
+async function recToggle(){
+ if(REC.mr){stopRec();return;}
+ if(!navigator.mediaDevices||!window.MediaRecorder){
+  REC.msg="Recording is not available here. Open the game from a secure https page in Chrome or Safari.";
+  recRender();return;
+ }
+ let st;
+ try{st=await getStream();}
+ catch(e){
+  REC.msg="The microphone is blocked. Allow it in the browser, then try again.";
+  recRender();return;
+ }
+ const key=REC.sel;
+ const mime=recMime();
+ let mr;
+ try{mr=mime?new MediaRecorder(st,{mimeType:mime}):new MediaRecorder(st);}
+ catch(e){REC.msg="Could not start recording.";recRender();return;}
+ const parts=[];
+ mr.ondataavailable=e=>{if(e.data&&e.data.size)parts.push(e.data);};
+ mr.onstop=()=>{finishRec(key,new Blob(parts,{type:mr.mimeType||mime||"audio/webm"}));};
+ REC.mr=mr;
+ mr.start();
+ REC.msg="Listening... say the sound now!";
+ recRender();
+ REC.timer=setTimeout(stopRec,2500);
+}
+async function finishRec(key,blob){
+ try{
+  const buf=await blob.arrayBuffer();
+  const ok=await prepClip(key,{buf:buf,type:blob.type},true);
+  if(!ok){
+   REC.msg="Too quiet or too short. Try again a little closer.";
+   recRender();return;
+  }
+  await clipPut(key,{buf:buf,type:blob.type});
+  try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}
+  REC.msg="Saved! ✔ Listen:";
+  recRender();refreshRecBadge();
+  await playClip(key);
+ }catch(e){
+  REC.msg="Could not save that one. Try again.";
+  recRender();
+ }
+}
+
 function helpHTML(){
  const hist=HISTORY.slice().reverse().map(h=>"<li><b>v"+h[0]+"</b> ("+h[1]+"): "+h[2]+"</li>").join("");
  const dl=DINOS.map(d=>d.name+" at "+d.need+" stars").join(", ");
  return '<div class="modal help"><h2>❓ Help</h2>'+
  '<details open><summary>🦕 What is this?</summary><p>Lilysaurus helps you learn to read with dinosaur friends. Every right answer wins a ⭐. Collect stars to hatch new dinos!</p></details>'+
  '<details><summary>🔘 The buttons</summary><ul><li>🏠 goes back to the game menu.</li><li>🔊 at the top of a game says the question again.</li><li>🔊 / 🔇 at the top turns all sound and voice on or off.</li><li>❓ opens this help.</li><li>Tap anywhere to make sparkles. ✨</li></ul></details>'+
- '<details><summary>🥚 Letter Eggs</summary><ul><li>Listen to the letter name, then tap the egg with that letter.</li><li>Each egg shows a big capital letter and a small letter.</li><li>The right egg wobbles and a baby dino hatches. You hear the letter sound and a picture word, like B is for bone.</li><li>Wrong egg? Try again. After two tries the right egg glows to help you.</li></ul></details>'+
- '<details><summary>🪷 Sound Safari</summary><ul><li>You see a picture and hear its word.</li><li>Tap the lily pad with the letter the word starts with.</li><li>Tap the picture any time to hear the word again.</li><li>The first letter lights up pink when you get it right.</li></ul></details>'+
+ '<details><summary>🥚 Letter Eggs</summary><ul><li>Listen to the letter name, then tap the egg with that letter.</li><li>Each egg shows a big capital letter and a small letter.</li><li>The right egg wobbles and a baby dino hatches. You hear the letter name, then its sound, then a picture word, like B, buh, B is for bone.</li><li>Wrong egg? Try again. After two tries the right egg glows to help you.</li></ul></details>'+
+ '<details><summary>🪷 Sound Safari</summary><ul><li>You see a picture and hear its word.</li><li>Tap the lily pad with the letter the word starts with.</li><li>Tap the picture any time to hear the word again.</li><li>The first letter lights up pink when you get it right and you hear its sound.</li><li>Wrong pad? You hear the sound of the letter you tapped. After two tries the right pad glows.</li></ul></details>'+
  '<details><summary>🧩 Build a Word</summary><ul><li>Look at the picture and tap the letter tiles in the right order to spell the word.</li><li>Each tile you tap says its sound. When the word is finished, all the sounds are blended together: c, a, t, cat!</li><li>Tap the picture to hear the word broken into sounds.</li><li>Later words in a game have two letters that team up, like sh, ee, oo, ar and ck. They sit on one tile.</li><li>There are two extra tiles that do not belong.</li></ul></details>'+
  '<details><summary>📖 Read &amp; Match</summary><ul><li>Read the big word, then tap the picture that matches it.</li><li>🔊 Hear it says the word. 🐾 Sound it out lights up each sound, then says the whole word.</li><li>After two wrong tries the game sounds the word out for you and glows the right picture.</li></ul></details>'+
  '<details><summary>🦖 Dino Park and stars</summary><ul><li>Tap a dino to hear its name, then the letters of its name one by one.</li><li>Tap a dino to make it your buddy. Your buddy cheers for you in the games.</li><li>New dinos: '+dl+'.</li><li>Locked dinos show as shadows with the number of stars needed.</li></ul></details>'+
- '<details><summary>👩 Grown-up corner</summary><ul><li>Play together for 10 to 15 minutes at a time. Let her try before helping.</li><li>Use the device volume. The first tap on the screen switches the sound on.</li><li>Voice uses your browser built-in speech. Chrome, Edge and Safari work best. Voices and letter sounds can vary a little between devices.</li><li>Stars and your buddy are saved on this device and browser.</li><li>Words are short and easy at first, then a little harder in later rounds.</li></ul><div class="row"><button class="btn sky tiny" id="resetBtn" style="font-size:16px">Reset stars and dinos</button></div></details>'+
+ '<details><summary>🎙 Record the letter sounds (grown-ups)</summary><ul><li>The computer voice cannot say single letter sounds well, so you can record real ones with the microphone. Your voice is used in all four games.</li><li>Open the recorder with the blue 🎙 button on the game menu or the button below. There are 32 sounds: a to z plus sh, ch, oo, ee, ar and ck.</li><li>Tap a letter, press ⏺ Record, say just the sound (like buh, not bee), then it stops by itself after a moment or press ⏹ Stop. It plays back so you can check it.</li><li>Not happy? Press ⏺ Record again to replace it. 🗑 deletes one. Next sound ▶ jumps to the next one still missing.</li><li>Green letters are done. Any sound you have not recorded still uses the computer voice.</li><li>Recordings are saved on this device and browser, so you only do this once. They stay after you close the game. Clearing the browser data or using a different browser or device means starting again.</li><li>The first time, the browser asks to use the microphone. Tap Allow. Recording needs a secure page (https) or the file opened directly from the device. Speak close to the microphone in a quiet room.</li><li>The game trims the silence at the start and end of each clip and evens out the volume for you.</li></ul><div class="row"><button class="btn grape sm" id="recOpen">🎙 Record letter sounds</button></div></details>'+
+ '<details><summary>👩 Grown-up corner</summary><ul><li>Play together for 10 to 15 minutes at a time. Let her try before helping.</li><li>Use the device volume. The first tap on the screen switches the sound on.</li><li>Words and letter names use your browser built-in voice. Chrome, Edge and Safari work best. Voices can vary a little between devices.</li><li>Stars, your buddy and recorded sounds are saved on this device and browser.</li><li>Words are short and easy at first, then a little harder in later rounds.</li></ul><div class="row"><button class="btn sky sm" id="resetBtn">Reset stars and dinos</button></div></details>'+
  '<details><summary>🆕 What is new</summary><ul>'+hist+'</ul><p class="tiny">Version '+VERSION+' - created '+BUILT+'</p></details>'+
  '<div class="row"><button class="btn mint" id="closeHelp">✔ Got it!</button></div></div>';
 }
@@ -810,8 +1127,9 @@ function openHelp(){
  ac();sfx.tap();
  openModal(helpHTML(),true);
  $("#closeHelp").onclick=closeModal;
+ $("#recOpen").onclick=()=>{ac();sfx.tap();openRecorder();};
  $("#resetBtn").onclick=()=>{
-  if(confirm("Reset all stars and dinos?")){
+  if(confirm("Reset all stars and dinos? Your recorded sounds are kept.")){
    stars=0;buddyId="rex";store.set("stars",0);store.set("buddy","rex");
    updateHud();renderMascot();if(current==="park")renderPark();closeModal();
   }
@@ -825,6 +1143,7 @@ $("#soundBtn").onclick=()=>{
 };
 $("#helpBtn").onclick=openHelp;
 $("#homeBtn").onclick=goHome;
+$("#recLink").onclick=()=>{ac();sfx.tap();openRecorder();};
 
 document.querySelectorAll(".card").forEach(c=>{
  c.onclick=()=>{ac();sfx.pop();startGame(c.dataset.game);};
@@ -854,6 +1173,8 @@ buildTitle();
 updateHud();
 setSoundIcon();
 renderMascot();
+refreshRecBadge();
+loadClips();
 $("#homeBtn").style.visibility="hidden";
 </script>
 </body>
