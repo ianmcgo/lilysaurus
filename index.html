@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#a8dcff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Lilysaurus - Dino Reading Adventure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#4a3b6b;--sun:#ffc93c;--pink:#ff6fae;--mint:#3fcf94;--sky:#4aaeff;--grape:#a070f0;--orange:#ff9a4d;--card:#ffffffee}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{margin:0;height:100%;overflow:hidden}
+body{font-family:"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",system-ui,sans-serif;color:var(--ink);background:linear-gradient(#a8dcff 0%,#dff6ff 55%,#c9f3b8 100%);touch-action:manipulation}
+#scenery{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.cloud{position:absolute;font-size:clamp(50px,9vw,110px);opacity:.92;animation:drift linear infinite}
+.hill{position:absolute;bottom:-14vh;left:-10vw;width:120vw;height:32vh;background:radial-gradient(ellipse at 50% 0,#9cec8f 0,#6cd37a 75%);border-radius:50% 50% 0 0}
+.deco{position:absolute;bottom:3vh;font-size:clamp(40px,8vw,96px)}
+#hud{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;z-index:20;pointer-events:none}
+#hud>*{pointer-events:auto}
+.hgroup{display:flex;gap:8px;align-items:center}
+.btn{font:inherit;font-weight:700;border:0;border-radius:999px;padding:.55em 1.3em;font-size:clamp(20px,4vw,30px);color:#fff;background:var(--pink);box-shadow:0 6px 0 rgba(0,0,0,.18);cursor:pointer;transition:transform .1s,box-shadow .1s}
+.btn:active{transform:translateY(5px);box-shadow:0 1px 0 rgba(0,0,0,.18)}
+.btn.mint{background:var(--mint)}
+.btn.sun{background:var(--sun);color:#6b4a00}
+.btn.sky{background:var(--sky)}
+.btn.grape{background:var(--grape)}
+.round{width:52px;height:52px;border-radius:50%;font-size:26px;padding:0;display:grid;place-items:center;background:#fff;color:var(--ink)}
+.pill{background:#fff;border-radius:999px;padding:6px 16px;font-weight:700;font-size:26px;box-shadow:0 5px 0 rgba(0,0,0,.12);display:flex;gap:6px;align-items:center}
+.pill.pop{animation:popin .5s}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;padding:calc(70px + env(safe-area-inset-top)) 16px 16px;z-index:1;overflow-y:auto;overflow-x:hidden}
+.screen.active{display:flex;animation:fadein .4s}
+.row{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-items:center}
+#title{justify-content:center;text-align:center;gap:6px}
+#title h1{margin:0;line-height:1;font-size:clamp(46px,12vw,116px);display:flex;justify-content:center;flex-wrap:wrap}
+#title h1 span{display:inline-block;color:#fff;text-shadow:0 5px 0 rgba(0,0,0,.18);animation:bob 2s ease-in-out infinite}
+#title h2{margin:0 0 4px;font-size:clamp(20px,4.5vw,34px);color:var(--ink)}
+.titledino{width:clamp(190px,40vw,340px);cursor:pointer}
+.ver{margin-top:10px;font-size:clamp(14px,2.6vw,18px);background:#ffffffb0;border-radius:999px;padding:6px 16px;font-weight:600}
+.dsvg{width:100%;height:auto;display:block;overflow:visible;filter:drop-shadow(0 8px 0 rgba(0,0,0,.1))}
+.bobbing{animation:bob 2.6s ease-in-out infinite}
+.eyes{transform-box:fill-box;transform-origin:center;animation:blink 4.5s infinite}
+.dance{animation:dance .8s ease-in-out 3}
+.jump{animation:jump .6s ease-out}
+.shakeit{animation:wiggle .5s}
+#menu{gap:14px}
+#menu h2{margin:0;font-size:clamp(26px,6vw,44px)}
+.menurow{display:flex;align-items:flex-end;gap:12px}
+.menubuddy{width:clamp(90px,18vw,150px)}
+.bubble{background:#fff;border-radius:22px;padding:8px 16px;font-weight:700;font-size:clamp(18px,3.6vw,26px);position:relative;box-shadow:0 5px 0 rgba(0,0,0,.1);margin-bottom:30px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;width:min(920px,100%)}
+.card{border:0;border-radius:32px;padding:16px 10px;font:inherit;color:#fff;font-weight:700;font-size:clamp(20px,4vw,28px);cursor:pointer;box-shadow:0 8px 0 rgba(0,0,0,.18);display:flex;flex-direction:column;align-items:center;gap:6px;transition:transform .1s;text-shadow:0 2px 0 rgba(0,0,0,.18)}
+.card:active{transform:translateY(6px);box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.card .ic{font-size:clamp(54px,12vw,86px);animation:bobegg 2.4s ease-in-out infinite;filter:drop-shadow(0 4px 0 rgba(0,0,0,.15))}
+.card small{font-size:clamp(14px,2.6vw,18px);font-weight:500}
+#game{gap:10px;padding-bottom:130px}
+.prompt{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:30px;padding:8px 20px 8px 10px;box-shadow:0 6px 0 rgba(0,0,0,.1);font-size:clamp(22px,5vw,38px);font-weight:700}
+.prompt .hl,.rword .hl{color:var(--pink)}
+#dots{display:flex;gap:10px}
+.dot{width:18px;height:18px;border-radius:50%;background:#fff;opacity:.75;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12);transition:transform .3s}
+.dot.on{background:var(--sun);opacity:1;transform:scale(1.35)}
+.dot.done{background:var(--mint);opacity:1}
+#arena{flex:1;width:min(920px,100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
+#mascot{position:fixed;right:10px;bottom:6px;width:clamp(90px,15vw,150px);z-index:6;pointer-events:none}
+#mascot .bubble{position:absolute;right:60%;bottom:70%;margin:0;opacity:0;transform:scale(.6);transition:all .25s;white-space:nowrap}
+#mascot .bubble.show{opacity:1;transform:scale(1)}
+.egg{width:clamp(88px,19vw,160px);height:clamp(112px,25vw,205px);border:0;border-radius:50% 50% 50% 50%/62% 62% 38% 38%;background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.65),transparent 38%),var(--c);box-shadow:inset -8px -12px 0 rgba(0,0,0,.1),0 9px 0 rgba(0,0,0,.16);position:relative;cursor:pointer;animation:bobegg 2.4s ease-in-out infinite;font:inherit;color:#fff;display:grid;place-items:center}
+.egg::before{content:"";position:absolute;width:18%;height:12%;border-radius:50%;background:rgba(255,255,255,.4);left:20%;bottom:24%}
+.egg::after{content:"";position:absolute;width:12%;height:9%;border-radius:50%;background:rgba(255,255,255,.4);right:22%;bottom:36%}
+.eggL{display:flex;align-items:baseline;gap:4px;text-shadow:0 3px 0 rgba(0,0,0,.22);z-index:1}
+.eggL .up{font-size:clamp(40px,10vw,76px);font-weight:700}
+.eggL .lo{font-size:clamp(28px,7vw,52px);font-weight:600}
+.egg.shake,.tile.shake{animation:shake .8s}
+.egg.wiggle,.tile.wiggle,.pad.wiggle,.pic.wiggle{animation:wiggle .5s}
+.egg.hatched{background:none;box-shadow:none;animation:none}
+.egg.hatched::before,.egg.hatched::after{display:none}
+.baby{width:100%;animation:popin .6s}
+.glow{animation:glow 1s ease-in-out infinite!important}
+.reveal{display:flex;align-items:center;gap:16px;background:#fff;border-radius:32px;padding:10px 26px;box-shadow:0 6px 0 rgba(0,0,0,.12);animation:popin .5s}
+.reveal .big,.pic-card{font-size:clamp(64px,15vw,120px);line-height:1.1}
+.rword{font-size:clamp(40px,10vw,84px);font-weight:700;letter-spacing:3px}
+.pic-card{background:#fff;border-radius:36px;padding:6px 30px;box-shadow:0 7px 0 rgba(0,0,0,.12);cursor:pointer;animation:bobegg 2.6s ease-in-out infinite}
+.pond{background:linear-gradient(#8ddcff,#4fb8f0);border-radius:44px;padding:22px 26px;display:flex;gap:clamp(12px,4vw,36px);flex-wrap:wrap;justify-content:center;box-shadow:inset 0 -10px 0 rgba(0,0,0,.1),0 7px 0 rgba(0,0,0,.14)}
+.pad{width:clamp(86px,20vw,150px);height:clamp(86px,20vw,150px);border-radius:50%;border:5px solid #2e9e57;background:radial-gradient(circle at 38% 32%,#a6f09b,#43c46f);display:grid;place-items:center;font:inherit;font-weight:700;color:#fff;font-size:clamp(44px,11vw,84px);text-shadow:0 3px 0 rgba(0,0,0,.25);cursor:pointer;box-shadow:0 7px 0 rgba(0,0,0,.18);animation:bobegg 3s ease-in-out infinite}
+.pad.right{background:radial-gradient(circle at 38% 32%,#fff3a0,#ffc93c);border-color:#d99a00}
+.slot{width:clamp(58px,15vw,104px);height:clamp(66px,17vw,116px);border-radius:22px;border:5px dashed #b9a6e8;background:#ffffffa8;display:grid;place-items:center;font-size:clamp(36px,10vw,68px);font-weight:700}
+.slot.filled{border:5px solid var(--mint);background:#fff;animation:popin .35s}
+.slot.hl{background:#fff3a0;transform:scale(1.18)}
+.tile{width:clamp(62px,16vw,108px);height:clamp(62px,16vw,108px);border:0;border-radius:26px;background:var(--c);color:#fff;font:inherit;font-weight:700;font-size:clamp(36px,10vw,68px);text-shadow:0 3px 0 rgba(0,0,0,.22);box-shadow:0 8px 0 rgba(0,0,0,.2);cursor:pointer;animation:bobegg 2.8s ease-in-out infinite}
+.tile:active{transform:translateY(6px)}
+.tile.used{visibility:hidden}
+.wordcard{background:#fff;border-radius:40px;padding:8px 38px;font-size:clamp(64px,17vw,140px);font-weight:700;box-shadow:0 8px 0 rgba(0,0,0,.12);display:flex}
+.wordcard span{display:inline-block;transition:transform .2s,color .2s}
+.wordcard span.hl{transform:scale(1.35) translateY(-8px);color:var(--pink)}
+.wordcard.cheer span{animation:dance .7s ease-in-out}
+.pic{width:clamp(92px,25vw,176px);height:clamp(92px,25vw,176px);border:0;border-radius:36px;background:#fff;font-size:clamp(56px,15vw,112px);cursor:pointer;box-shadow:0 8px 0 rgba(0,0,0,.16);animation:bobegg 2.6s ease-in-out infinite;display:grid;place-items:center}
+.pic:active{transform:translateY(6px)}
+.pic.right{background:#d8ffe8;box-shadow:0 0 0 6px var(--mint)}
+#parkHead{text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center}
+#parkHead h2{margin:0;font-size:clamp(26px,6vw,44px)}
+#parkHead p{margin:0;font-size:clamp(16px,3.2vw,22px);font-weight:500}
+.next{background:#fff;border-radius:999px;padding:6px 18px;font-weight:700;font-size:clamp(16px,3.2vw,22px)}
+#parkGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;width:min(920px,100%);margin-top:12px;padding-bottom:50px}
+.pdino{border:0;border-radius:32px;background:#ffffffd0;padding:12px 8px 10px;font:inherit;color:var(--ink);cursor:pointer;box-shadow:0 7px 0 rgba(0,0,0,.14);display:flex;flex-direction:column;align-items:center;gap:4px}
+.pdino:active{transform:translateY(5px)}
+.pd{width:80%}
+.pdino.locked .pd{filter:brightness(.25) saturate(0);opacity:.55}
+.pdino.buddy{outline:5px solid var(--sun)}
+.pname{display:flex;gap:3px;font-size:clamp(24px,5vw,34px);font-weight:700}
+.pname span{display:inline-block;transition:transform .2s,color .2s}
+.pname span.hl{transform:scale(1.5);color:var(--pink)}
+.need{font-weight:700;font-size:20px}
+#overlay{position:fixed;inset:0;background:rgba(74,59,107,.62);display:none;place-items:center;z-index:50;padding:14px}
+#overlay.on{display:grid}
+.modal{background:#fff;border-radius:36px;padding:24px;width:min(600px,94vw);max-height:90vh;overflow:auto;text-align:center;animation:popin .4s;box-shadow:0 10px 0 rgba(0,0,0,.2)}
+.modal h2{margin:6px 0;font-size:clamp(28px,6vw,42px)}
+.modal h3{margin:6px 0;font-size:clamp(22px,4.5vw,30px)}
+.windino{width:clamp(140px,32vw,210px);margin:0 auto}
+.udino{width:clamp(120px,28vw,180px);margin:0 auto}
+.earned{font-size:clamp(28px,6vw,40px);font-weight:700;margin-bottom:10px}
+.unlock{background:#fff7d6;border-radius:28px;padding:10px;margin:10px 0}
+.help{text-align:left}
+.help h2{text-align:center}
+.help details{background:#f3edff;border-radius:20px;padding:10px 16px;margin:10px 0;font-size:clamp(16px,3.3vw,20px)}
+.help summary{font-weight:700;font-size:clamp(18px,3.8vw,24px);cursor:pointer}
+.help ul{margin:8px 0;padding-left:22px}
+.help li{margin:5px 0}
+.help .row{justify-content:center;margin-top:12px}
+.tiny{font-size:14px}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+.conf{position:absolute;top:0;animation:fall linear forwards}
+.spark{position:absolute;font-size:30px;transform:translate(-50%,-50%);animation:rise .8s ease-out forwards}
+@keyframes fadein{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes drift{from{transform:translateX(-25vw)}to{transform:translateX(125vw)}}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-12px) rotate(1.5deg)}}
+@keyframes bobegg{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes shake{0%,100%{transform:rotate(0)}15%{transform:rotate(-14deg)}30%{transform:rotate(12deg)}45%{transform:rotate(-12deg)}60%{transform:rotate(10deg)}75%{transform:rotate(-6deg)}}
+@keyframes wiggle{0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}40%{transform:translateX(12px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}
+@keyframes popin{0%{transform:scale(.2)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+@keyframes dance{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-22px) rotate(-7deg)}50%{transform:translateY(0) rotate(0)}75%{transform:translateY(-22px) rotate(7deg)}}
+@keyframes jump{0%,100%{transform:translateY(0)}40%{transform:translateY(-44px) scale(1.08)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes fall{from{transform:translateY(-10vh) rotate(0)}to{transform:translateY(112vh) rotate(540deg)}}
+@keyframes rise{from{opacity:1;transform:translate(-50%,-50%) scale(.6)}to{opacity:0;transform:translate(-50%,-150%) scale(1.4)}}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 0 #ffc93c)}50%{filter:drop-shadow(0 0 16px #ffb300) brightness(1.15)}}
+</style>
+</head>
+<body>
+<div id="scenery">
+ <div class="cloud" style="top:9vh;animation-duration:70s">☁️</div>
+ <div class="cloud" style="top:20vh;animation-duration:95s;animation-delay:-40s">☁️</div>
+ <div class="cloud" style="top:5vh;animation-duration:120s;animation-delay:-80s;font-size:clamp(34px,6vw,70px)">☁️</div>
+ <div class="hill"></div>
+ <div class="deco" style="left:2vw">🌴</div>
+ <div class="deco" style="left:12vw;font-size:clamp(30px,6vw,70px)">🌿</div>
+ <div class="deco" style="right:2vw">🌋</div>
+ <div class="deco" style="right:13vw;font-size:clamp(30px,6vw,70px)">🌺</div>
+</div>
+
+<div id="hud">
+ <div class="hgroup"><button class="btn round" id="homeBtn" aria-label="Home">🏠</button></div>
+ <div class="pill" id="starPill">⭐ <span id="starCount">0</span></div>
+ <div class="hgroup"><button class="btn round" id="soundBtn" aria-label="Sound">🔊</button><button class="btn round" id="helpBtn" aria-label="Help">❓</button></div>
+</div>
+
+<section class="screen active" id="title">
+ <h1 id="titleWord"></h1>
+ <h2>Dino Reading Adventure</h2>
+ <div class="titledino bobbing" id="titleDino"></div>
+ <button class="btn" id="playBtn">▶ Let's Play!</button>
+ <div class="ver" id="verStamp"></div>
+</section>
+
+<section class="screen" id="menu">
+ <div class="menurow"><div class="menubuddy bobbing" id="menuBuddy"></div><div class="bubble" id="menuSay">Pick a game!</div></div>
+ <div class="grid">
+  <button class="card" data-game="letters" style="background:#ff8fb8"><span class="ic">🥚</span>Letter Eggs<small>Find the letter</small></button>
+  <button class="card" data-game="safari" style="background:#3fb8e8"><span class="ic">🪷</span>Sound Safari<small>First sounds</small></button>
+  <button class="card" data-game="build" style="background:#a070f0"><span class="ic">🧩</span>Build a Word<small>Spell it out</small></button>
+  <button class="card" data-game="read" style="background:#f29a2e"><span class="ic">📖</span>Read &amp; Match<small>Read the word</small></button>
+  <button class="card" data-game="park" style="background:#3fcf94"><span class="ic">🦖</span>Dino Park<small>Meet your friends</small></button>
+ </div>
+</section>
+
+<section class="screen" id="game">
+ <div class="prompt"><button class="btn round" id="repeat" aria-label="Hear again">🔊</button><div id="promptText"></div></div>
+ <div id="dots"></div>
+ <div id="arena"></div>
+ <div id="mascot"><div class="bubble" id="bubble"></div><div id="mascotDino"></div></div>
+</section>
+
+<section class="screen" id="park">
+ <div id="parkHead"><h2>🦖 Dino Park</h2><p>Tap a dino to say hello. Tap again to pick your buddy!</p><div class="next" id="nextInfo"></div></div>
+ <div id="parkGrid"></div>
+</section>
+
+<div id="overlay"></div>
+<div id="fx"></div>
+
+<script>
+const VERSION="1.0";
+const BUILT="2026-10-01 10:27 PDT";
+const ROUNDS=5;
+const CHEERS=["Yay!","Roar-some!","You did it!","Dino-mite!","Great job!","Wow!"];
+const EGGC=["#ff8fbf","#6fc8ff","#ffc94d","#b39bff","#5fdca8"];
+const LTRC=["#ff6b9d","#ff9a4d","#f2b800","#3fbf6a","#3aa8ff","#a070f0"];
+const LETTERS="abcdefghijklmnopqrstuvwxyz".split("");
+const NAME={a:"ay",b:"bee",c:"see",d:"dee",e:"ee",f:"eff",g:"jee",h:"aitch",i:"eye",j:"jay",k:"kay",l:"el",m:"em",n:"en",o:"oh",p:"pee",q:"cue",r:"are",s:"ess",t:"tee",u:"you",v:"vee",w:"double you",x:"ex",y:"why",z:"zee"};
+const SOUND={a:"aa",b:"buh",c:"kuh",d:"duh",e:"eh",f:"fff",g:"guh",h:"huh",i:"ih",j:"juh",k:"kuh",l:"lll",m:"mmm",n:"nnn",o:"ah",p:"puh",q:"kwuh",r:"rrr",s:"sss",t:"tuh",u:"uh",v:"vvv",w:"wuh",x:"ks",y:"yuh",z:"zzz",sh:"shh",ch:"chh",oo:"ooo",ee:"eee",ar:"arr",ck:"kuh"};
+const PIC={a:["apple","🍎"],b:["bone","🦴"],c:["cat","🐱"],d:["dino","🦕"],e:["egg","🥚"],f:["fish","🐟"],g:["grass","🌿"],h:["hat","🎩"],i:["iguana","🦎"],j:["jet","✈️"],k:["kite","🪁"],l:["leaf","🍃"],m:["moon","🌙"],n:["nut","🥜"],o:["octopus","🐙"],p:["pig","🐷"],q:["queen","👑"],r:["rainbow","🌈"],s:["sun","☀️"],t:["tree","🌳"],u:["umbrella","☂️"],v:["volcano","🌋"],w:["whale","🐳"],x:["fox","🦊"],y:["yarn","🧶"],z:["zebra","🦓"]};
+const SAFARI=LETTERS.filter(l=>l!=="x");
+const EASY=[
+ {w:"cat",e:"🐱",p:["c","a","t"]},{w:"dog",e:"🐶",p:["d","o","g"]},{w:"sun",e:"☀️",p:["s","u","n"]},
+ {w:"bug",e:"🐛",p:["b","u","g"]},{w:"pig",e:"🐷",p:["p","i","g"]},{w:"hat",e:"🎩",p:["h","a","t"]},
+ {w:"bed",e:"🛏️",p:["b","e","d"]},{w:"bat",e:"🦇",p:["b","a","t"]},{w:"hen",e:"🐔",p:["h","e","n"]},
+ {w:"bus",e:"🚌",p:["b","u","s"]},{w:"map",e:"🗺️",p:["m","a","p"]},{w:"fox",e:"🦊",p:["f","o","x"]}
+];
+const HARD=[
+ {w:"frog",e:"🐸",p:["f","r","o","g"]},{w:"fish",e:"🐟",p:["f","i","sh"]},{w:"moon",e:"🌙",p:["m","oo","n"]},
+ {w:"tree",e:"🌳",p:["t","r","ee"]},{w:"star",e:"⭐",p:["s","t","ar"]},{w:"duck",e:"🦆",p:["d","u","ck"]},
+ {w:"sheep",e:"🐑",p:["sh","ee","p"]},{w:"ship",e:"🚢",p:["sh","i","p"]},{w:"milk",e:"🥛",p:["m","i","l","k"]},
+ {w:"crab",e:"🦀",p:["c","r","a","b"]}
+];
+const ALLWORDS=EASY.concat(HARD);
+const DINOS=[
+ {id:"rex",name:"Rexy",kind:"rex",color:"#6fd16f",accent:"#ffd166",need:0},
+ {id:"tri",name:"Trixie",kind:"tri",color:"#ffa94d",accent:"#ff7eb6",need:10},
+ {id:"steg",name:"Stego",kind:"steg",color:"#b58cf0",accent:"#ff8fab",need:25},
+ {id:"bronto",name:"Bronty",kind:"bronto",color:"#5bc0eb",accent:"#ffe066",need:45},
+ {id:"ptera",name:"Terra",kind:"ptera",color:"#ff8fab",accent:"#ffd0e0",need:70},
+ {id:"spiny",name:"Spiny",kind:"spiny",color:"#2ec4b6",accent:"#ff9f1c",need:100}
+];
+const HISTORY=[
+ ["1.0","2026-10-01","First version: title screen, Letter Eggs, Sound Safari, Build a Word, Read &amp; Match, Dino Park with 6 dinos to unlock, stars, sounds, voice and this help."]
+];
+
+const $=s=>document.querySelector(s);
+const rand=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;};
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const store={
+ get(k,d){try{const v=localStorage.getItem("lily_"+k);return v===null?d:JSON.parse(v);}catch(e){return d;}},
+ set(k,v){try{localStorage.setItem("lily_"+k,JSON.stringify(v));}catch(e){}}
+};
+
+let stars=store.get("stars",0);
+let soundOn=store.get("sound",true);
+let buddyId=store.get("buddy","rex");
+let run=0,current="title",repeatFn=null,earned=0,bubT=null;
+const pendingUnlocks=[];
+
+let ctx=null;
+function ac(){
+ if(!ctx){try{ctx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}
+ if(ctx&&ctx.state==="suspended")ctx.resume();
+ return ctx;
+}
+function tone(f,d,type,vol,delay,slideTo){
+ if(!soundOn)return;
+ const c=ac();if(!c)return;
+ const t=c.currentTime+(delay||0);
+ const o=c.createOscillator();const g=c.createGain();
+ o.type=type||"sine";
+ o.frequency.setValueAtTime(f,t);
+ if(slideTo)o.frequency.exponentialRampToValueAtTime(slideTo,t+d);
+ g.gain.setValueAtTime(0.0001,t);
+ g.gain.exponentialRampToValueAtTime(vol||0.15,t+0.02);
+ g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+ o.connect(g);g.connect(c.destination);
+ o.start(t);o.stop(t+d+0.05);
+}
+const sfx={
+ pop(){tone(520,.12,"sine",.2,0,900);},
+ tap(){tone(660,.08,"triangle",.15);},
+ good(){[523,659,784,1047].forEach((f,i)=>tone(f,.25,"triangle",.18,i*.1));},
+ oops(){tone(300,.28,"sine",.16,0,180);},
+ win(){[523,659,784,659,784,1047,1319].forEach((f,i)=>tone(f,.3,"triangle",.18,i*.12));},
+ roar(){tone(190,.8,"sawtooth",.15,0,60);tone(130,.8,"square",.07,0,45);tone(95,.8,"sawtooth",.1,.05,40);},
+ hatch(){tone(200,.08,"square",.12);tone(250,.08,"square",.12,.12);tone(300,.08,"square",.12,.24);tone(900,.35,"triangle",.18,.4,1500);},
+ star(){tone(1200,.2,"sine",.15,0,1800);}
+};
+
+let voice=null;
+function pickVoice(){
+ if(!("speechSynthesis" in window))return;
+ const vs=speechSynthesis.getVoices();
+ if(!vs.length)return;
+ voice=vs.find(v=>/^en[-_](US|GB|AU)/i.test(v.lang)&&/(samantha|zira|google us english|female|karen|moira|aria|jenny|ava|allison)/i.test(v.name))||vs.find(v=>/^en/i.test(v.lang))||null;
+}
+if("speechSynthesis" in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice;}
+function say(text,opts){
+ opts=opts||{};
+ return new Promise(res=>{
+  if(!soundOn||!("speechSynthesis" in window)){setTimeout(res,opts.fallback||600);return;}
+  try{
+   speechSynthesis.cancel();
+   const u=new SpeechSynthesisUtterance(text);
+   if(voice)u.voice=voice;
+   u.lang="en-US";u.rate=opts.rate||0.8;u.pitch=opts.pitch||1.25;u.volume=1;
+   let done=false;
+   const fin=()=>{if(!done){done=true;res();}};
+   u.onend=fin;u.onerror=fin;
+   setTimeout(fin,9000);
+   speechSynthesis.speak(u);
+  }catch(e){res();}
+ });
+}
+function stopSpeech(){try{if("speechSynthesis" in window)speechSynthesis.cancel();}catch(e){}}
+
+function confetti(n){
+ const box=$("#fx");const em=["⭐","✨","🎉","💖","🌟","🦕","🌈","🥚"];
+ for(let i=0;i<n;i++){
+  const s=document.createElement("span");
+  s.className="conf";s.textContent=rand(em);
+  s.style.left=Math.random()*100+"vw";
+  s.style.fontSize=(18+Math.random()*26)+"px";
+  s.style.animationDuration=(2+Math.random()*2)+"s";
+  s.style.animationDelay=(Math.random()*.6)+"s";
+  box.appendChild(s);
+  setTimeout(()=>s.remove(),5000);
+ }
+}
+function sparkle(x,y){
+ const s=document.createElement("span");
+ s.className="spark";s.textContent=rand(["✨","⭐","💖","🌟"]);
+ s.style.left=x+"px";s.style.top=y+"px";
+ $("#fx").appendChild(s);
+ setTimeout(()=>s.remove(),850);
+}
+document.addEventListener("pointerdown",e=>sparkle(e.clientX,e.clientY));
+
+function shade(h,a){
+ const n=parseInt(h.slice(1),16);
+ const f=v=>Math.max(0,Math.min(255,v+a));
+ return "rgb("+f(n>>16)+","+f((n>>8)&255)+","+f(n&255)+")";
+}
+function dinoSVG(d){
+ const c=d.color,a=d.accent,dk=shade(c,-45),lt=shade(c,55),k=d.kind;
+ const st='stroke="'+dk+'" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"';
+ let back="",neck="",ht="",extra="",wings="";
+ if(k==="tri"){
+  back='<circle cx="100" cy="76" r="62" fill="'+a+'" '+st+'/>';
+  for(let i=0;i<9;i++){
+   const ang=(200+i*17.5)*Math.PI/180;
+   back+='<circle cx="'+(100+62*Math.cos(ang)).toFixed(1)+'" cy="'+(76+62*Math.sin(ang)).toFixed(1)+'" r="8" fill="'+shade(a,45)+'" '+st+'/>';
+  }
+  extra='<polygon points="64,48 72,12 88,44" fill="#fff3d6" '+st+'/><polygon points="112,44 128,12 136,48" fill="#fff3d6" '+st+'/><polygon points="94,92 100,74 106,92" fill="#fff3d6" '+st+'/>';
+ }
+ if(k==="steg"){
+  for(let i=0;i<7;i++){
+   const ang=(205+i*21.7)*Math.PI/180;
+   const bx=100+46*Math.cos(ang),by=76+46*Math.sin(ang),tx=100+72*Math.cos(ang),ty=76+72*Math.sin(ang);
+   const px=-Math.sin(ang)*11,py=Math.cos(ang)*11;
+   back+='<polygon points="'+(bx+px).toFixed(1)+','+(by+py).toFixed(1)+' '+tx.toFixed(1)+','+ty.toFixed(1)+' '+(bx-px).toFixed(1)+','+(by-py).toFixed(1)+'" fill="'+a+'" '+st+'/>';
+  }
+ }
+ if(k==="spiny"){
+  back='<path d="M26,124 A74,76 0 0 1 174,124 Z" fill="'+a+'" '+st+'/>';
+  for(let i=1;i<6;i++){
+   const x=26+i*24.67;
+   const hgt=124-0.82*76*Math.sqrt(Math.max(0,1-Math.pow((x-100)/74,2)));
+   back+='<line x1="'+x.toFixed(1)+'" y1="124" x2="'+x.toFixed(1)+'" y2="'+hgt.toFixed(1)+'" stroke="'+shade(a,-45)+'" stroke-width="3" stroke-linecap="round"/>';
+  }
+ }
+ if(k==="ptera"){
+  wings='<path d="M54,126 Q2,94 8,162 Q30,148 56,160 Z" fill="'+a+'" '+st+'/><path d="M146,126 Q198,94 192,162 Q170,148 144,160 Z" fill="'+a+'" '+st+'/>';
+  extra='<polygon points="86,38 100,2 114,38" fill="'+a+'" '+st+'/>';
+ }
+ if(k==="bronto"){
+  neck='<rect x="80" y="66" width="40" height="84" rx="20" fill="'+c+'" '+st+'/>';
+  ht='translate(0,-26) translate(100,76) scale(.8) translate(-100,-76)';
+ }
+ const tail='<path d="M148,152 Q198,158 188,106 Q176,138 146,132 Z" fill="'+c+'" '+st+'/>';
+ const legs='<rect x="58" y="158" width="32" height="30" rx="15" fill="'+c+'" '+st+'/><rect x="110" y="158" width="32" height="30" rx="15" fill="'+c+'" '+st+'/>';
+ const body='<ellipse cx="100" cy="136" rx="58" ry="46" fill="'+c+'" '+st+'/><ellipse cx="100" cy="146" rx="36" ry="30" fill="'+lt+'"/>';
+ const spots='<circle cx="64" cy="128" r="6" fill="'+shade(c,-22)+'"/><circle cx="138" cy="122" r="5" fill="'+shade(c,-22)+'"/><circle cx="130" cy="152" r="4" fill="'+shade(c,-22)+'"/><circle cx="72" cy="154" r="4" fill="'+shade(c,-22)+'"/>';
+ const arms='<ellipse cx="50" cy="142" rx="11" ry="8" fill="'+c+'" '+st+' transform="rotate(-25 50 142)"/><ellipse cx="150" cy="142" rx="11" ry="8" fill="'+c+'" '+st+' transform="rotate(25 150 142)"/>';
+ const teeth=k==="rex"?'<polygon points="90,99 94,108 99,101" fill="#fff"/><polygon points="101,101 106,108 110,99" fill="#fff"/>':"";
+ const face='<ellipse cx="62" cy="90" rx="9" ry="6" fill="#ff8fa3" opacity=".65"/><ellipse cx="138" cy="90" rx="9" ry="6" fill="#ff8fa3" opacity=".65"/>'+
+  '<g class="eyes"><circle cx="80" cy="72" r="13" fill="#fff" stroke="'+dk+'" stroke-width="3"/><circle cx="120" cy="72" r="13" fill="#fff" stroke="'+dk+'" stroke-width="3"/><circle cx="82" cy="74" r="7" fill="#3b2a4a"/><circle cx="118" cy="74" r="7" fill="#3b2a4a"/><circle cx="85" cy="70" r="3" fill="#fff"/><circle cx="121" cy="70" r="3" fill="#fff"/></g>'+
+  '<circle cx="95" cy="88" r="2" fill="'+dk+'"/><circle cx="105" cy="88" r="2" fill="'+dk+'"/>'+
+  '<path d="M86,97 Q100,113 114,97" fill="none" stroke="#5a3a4e" stroke-width="4" stroke-linecap="round"/>'+teeth;
+ const head='<g'+(ht?' transform="'+ht+'"':"")+'><circle cx="100" cy="76" r="46" fill="'+c+'" '+st+'/>'+extra+face+'</g>';
+ return '<svg class="dsvg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">'+back+wings+tail+neck+legs+body+spots+arms+head+'</svg>';
+}
+
+const unlockedDinos=()=>DINOS.filter(d=>stars>=d.need);
+const buddy=()=>{const d=DINOS.find(x=>x.id===buddyId);return d&&stars>=d.need?d:DINOS[0];};
+
+function updateHud(pop){
+ $("#starCount").textContent=stars;
+ if(pop){const p=$("#starPill");p.classList.remove("pop");void p.offsetWidth;p.classList.add("pop");}
+}
+function addStar(){
+ const before=unlockedDinos().length;
+ stars++;earned++;
+ store.set("stars",stars);
+ updateHud(true);sfx.star();
+ const after=unlockedDinos();
+ if(after.length>before)pendingUnlocks.push(after[after.length-1]);
+}
+
+function renderMascot(){
+ $("#mascotDino").innerHTML=dinoSVG(buddy());
+ $("#menuBuddy").innerHTML=dinoSVG(buddy());
+}
+function mascotDo(cls,text){
+ const m=$("#mascotDino");
+ m.classList.remove("jump","shakeit");void m.offsetWidth;m.classList.add(cls);
+ if(text){
+  const b=$("#bubble");b.textContent=text;b.classList.add("show");
+  clearTimeout(bubT);bubT=setTimeout(()=>b.classList.remove("show"),2400);
+ }
+}
+
+function show(id){
+ document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id===id));
+ current=id;stopSpeech();
+ $("#homeBtn").style.visibility=id==="title"?"hidden":"visible";
+ if(id==="park")renderPark();
+ if(id==="menu"||id==="game")renderMascot();
+}
+function openModal(html,closable){
+ const o=$("#overlay");o.innerHTML=html;o.dataset.close=closable?"1":"0";o.classList.add("on");
+}
+function closeModal(){const o=$("#overlay");o.classList.remove("on");o.innerHTML="";}
+$("#overlay").addEventListener("click",e=>{if(e.target.id==="overlay"&&e.target.dataset.close==="1")closeModal();});
+
+function goHome(){
+ run++;closeModal();sfx.tap();show("menu");
+ say("Pick a game!");
+}
+
+function setPrompt(html,fn){$("#promptText").innerHTML=html;repeatFn=fn;}
+$("#repeat").onclick=()=>{ac();sfx.tap();if(repeatFn)repeatFn();};
+function setDots(i){
+ const d=$("#dots");d.innerHTML="";
+ for(let k=0;k<ROUNDS;k++){
+  const e=document.createElement("div");
+  e.className="dot"+(k<i?" done":k===i?" on":"");
+  d.appendChild(e);
+ }
+}
+function cheerAll(){
+ sfx.good();confetti(22);mascotDo("jump",rand(CHEERS));
+}
+
+function wordCard(word,emo,letter){
+ const i=word.indexOf(letter);
+ const ls=word.split("").map((c,k)=>'<span class="'+(k===i?"hl":"")+'">'+c+'</span>').join("");
+ return '<div class="reveal"><div class="big">'+emo+'</div><div class="rword">'+ls+'</div></div>';
+}
+
+async function letterRound(t,target,opts){
+ const arena=$("#arena");
+ arena.innerHTML='<div class="row" id="eggs"></div><div id="reveal"></div>';
+ const row=$("#eggs");
+ let tries=0,locked=false,done;
+ const fin=new Promise(r=>{done=r;});
+ const ask=()=>say("Can you find the letter "+NAME[target]+"?");
+ setPrompt("Find the letter <span class='hl'>"+target.toUpperCase()+target+"</span>",ask);
+ const btns={};
+ opts.forEach((l,idx)=>{
+  const e=document.createElement("button");
+  e.className="egg";
+  e.style.setProperty("--c",EGGC[idx%EGGC.length]);
+  e.style.animationDelay=(idx*.2)+"s";
+  e.innerHTML='<span class="eggL"><span class="up">'+l.toUpperCase()+'</span><span class="lo">'+l+'</span></span>';
+  btns[l]=e;
+  e.onclick=async()=>{
+   if(locked||t!==run)return;
+   ac();
+   if(l===target){
+    locked=true;sfx.hatch();e.classList.add("shake");
+    await wait(900);if(t!==run)return;
+    e.classList.remove("shake");e.classList.add("hatched");
+    e.innerHTML='<div class="baby">'+dinoSVG(rand(unlockedDinos()))+'</div>';
+    addStar();cheerAll();
+    const p=PIC[target];
+    $("#reveal").innerHTML=wordCard(p[0],p[1],target);
+    const first=p[0].indexOf(target)===0;
+    await say(first?NAME[target]+" says "+SOUND[target]+". "+NAME[target]+" is for "+p[0]+"!":p[0]+" ends with "+NAME[target]+"!");
+    await wait(500);
+    done();
+   }else{
+    tries++;sfx.oops();
+    e.classList.remove("wiggle");void e.offsetWidth;e.classList.add("wiggle");
+    mascotDo("shakeit","Try again!");
+    say("That is the letter "+NAME[l]+". Try again!");
+    if(tries>=2)btns[target].classList.add("glow");
+   }
+  };
+  row.appendChild(e);
+ });
+ await wait(350);
+ if(t===run)ask();
+ await fin;
+}
+
+async function playLetters(t){
+ const order=shuffle(LETTERS).slice(0,ROUNDS);
+ for(let i=0;i<ROUNDS;i++){
+  if(t!==run)return;
+  setDots(i);
+  const target=order[i];
+  const opts=shuffle([target].concat(shuffle(LETTERS.filter(l=>l!==target)).slice(0,3)));
+  await letterRound(t,target,opts);
+ }
+ finish(t,"letters");
+}
+
+async function safariRound(t,target){
+ const p=PIC[target];
+ const word=p[0],emo=p[1];
+ const opts=shuffle([target].concat(shuffle(SAFARI.filter(l=>l!==target)).slice(0,2)));
+ const arena=$("#arena");
+ arena.innerHTML='<div class="pic-card" id="pcard">'+emo+'</div><div class="rword" id="sw">'+word+'</div><div class="pond" id="pond"></div>';
+ let tries=0,locked=false,done;
+ const fin=new Promise(r=>{done=r;});
+ const ask=()=>say(word+". What sound does "+word+" start with?");
+ setPrompt("<span class='hl'>"+word+"</span> starts with...",ask);
+ $("#pcard").onclick=()=>{ac();sfx.tap();say(word);};
+ const pads={};
+ opts.forEach((l,idx)=>{
+  const b=document.createElement("button");
+  b.className="pad";b.style.animationDelay=(idx*.3)+"s";b.textContent=l;
+  pads[l]=b;
+  b.onclick=async()=>{
+   if(locked||t!==run)return;
+   ac();
+   if(l===target){
+    locked=true;b.classList.add("right");sfx.pop();
+    const w=word.split("").map((c,k)=>'<span class="'+(k===0?"hl":"")+'">'+c+'</span>').join("");
+    $("#sw").innerHTML=w;
+    cheerAll();addStar();
+    await say(SOUND[target]+", "+SOUND[target]+", "+word+"! "+word+" starts with "+NAME[target]+"!");
+    await wait(500);
+    done();
+   }else{
+    tries++;sfx.oops();
+    b.classList.remove("wiggle");void b.offsetWidth;b.classList.add("wiggle");
+    mascotDo("shakeit","Listen again!");
+    if(tries>=2){
+     pads[target].classList.add("glow");
+     say("Listen. "+word+". "+SOUND[target]+", "+SOUND[target]+", "+word+".");
+    }else{
+     say(SOUND[l]+"? Hmm, not quite. Try again!");
+    }
+   }
+  };
+  $("#pond").appendChild(b);
+ });
+ await wait(350);
+ if(t===run)ask();
+ await fin;
+}
+
+async function playSafari(t){
+ const order=shuffle(SAFARI).slice(0,ROUNDS);
+ for(let i=0;i<ROUNDS;i++){
+  if(t!==run)return;
+  setDots(i);
+  await safariRound(t,order[i]);
+ }
+ finish(t,"safari");
+}
+
+function extraTiles(parts,n){
+ const used=parts.join("").split("");
+ return shuffle(LETTERS.filter(l=>used.indexOf(l)<0&&["q","x","c","l"].indexOf(l)<0)).slice(0,n);
+}
+async function hearSounds(item){
+ await say(item.w);
+ for(const p of item.p){await say(SOUND[p],{rate:.7});}
+}
+
+async function buildRound(t,item){
+ const parts=item.p;
+ const arena=$("#arena");
+ arena.innerHTML='<div class="pic-card" id="pcard">'+item.e+'</div><div class="row" id="slots"></div><div class="row" id="tiles"></div>';
+ const slots=[];
+ parts.forEach(()=>{const s=document.createElement("div");s.className="slot";$("#slots").appendChild(s);slots.push(s);});
+ let idx=0,tries=0,locked=false,done;
+ const fin=new Promise(r=>{done=r;});
+ const ask=()=>say("Can you spell "+item.w+"? Tap the letters in order.");
+ setPrompt("Spell <span class='hl'>"+item.w+"</span>",ask);
+ $("#pcard").onclick=async()=>{ac();sfx.tap();if(!locked)await hearSounds(item);};
+ const tiles=[];
+ shuffle(parts.concat(extraTiles(parts,2))).forEach((part,i)=>{
+  const b=document.createElement("button");
+  b.className="tile";b.style.setProperty("--c",LTRC[i%LTRC.length]);b.style.animationDelay=(i*.25)+"s";
+  b.textContent=part;
+  tiles.push(b);
+  b.onclick=async()=>{
+   if(locked||t!==run)return;
+   ac();
+   if(part===parts[idx]){
+    b.classList.add("used");
+    slots[idx].textContent=part;slots[idx].classList.add("filled");
+    sfx.pop();
+    idx++;tries=0;
+    if(idx<parts.length){say(SOUND[part],{rate:.7});return;}
+    locked=true;
+    await wait(200);
+    for(let k=0;k<parts.length;k++){
+     if(t!==run)return;
+     slots[k].classList.add("hl");
+     await say(SOUND[parts[k]],{rate:.7});
+     slots[k].classList.remove("hl");
+    }
+    if(t!==run)return;
+    addStar();cheerAll();
+    slots.forEach(s=>{s.style.animation="dance .8s ease-in-out 2";});
+    await say(item.w+"! Great spelling!");
+    await wait(500);
+    done();
+   }else{
+    tries++;sfx.oops();
+    b.classList.remove("wiggle");void b.offsetWidth;b.classList.add("wiggle");
+    mascotDo("shakeit","Hmm...");
+    say("Listen for "+SOUND[parts[idx]]+". Try again!");
+    if(tries>=2){tiles.forEach(x=>{if(x.textContent===parts[idx]&&!x.classList.contains("used"))x.classList.add("glow");});}
+   }
+  };
+  $("#tiles").appendChild(b);
+ });
+ await wait(350);
+ if(t===run)ask();
+ await fin;
+}
+
+async function playBuild(t){
+ const items=shuffle(EASY).slice(0,3).concat(shuffle(HARD).slice(0,2));
+ for(let i=0;i<ROUNDS;i++){
+  if(t!==run)return;
+  setDots(i);
+  await buildRound(t,items[i]);
+ }
+ finish(t,"build");
+}
+
+async function soundOut(item,wc){
+ const spans=wc.querySelectorAll("span");
+ for(let k=0;k<item.p.length;k++){
+  spans[k].classList.add("hl");
+  await say(SOUND[item.p[k]],{rate:.7});
+  spans[k].classList.remove("hl");
+ }
+ await say(item.w,{rate:.8});
+}
+
+async function readRound(t,item){
+ const others=shuffle(ALLWORDS.filter(x=>x.w!==item.w&&x.e!==item.e)).slice(0,2);
+ const opts=shuffle([item].concat(others));
+ const arena=$("#arena");
+ const letters=item.p.map((p,k)=>'<span style="color:'+LTRC[k%LTRC.length]+'">'+p+'</span>').join("");
+ arena.innerHTML='<div class="wordcard" id="wc">'+letters+'</div><div class="row"><button class="btn mint" id="rd">🔊 Hear it</button><button class="btn sun" id="so">🐾 Sound it out</button></div><div class="row" id="pics"></div>';
+ const wc=$("#wc");
+ let tries=0,locked=false,done;
+ const fin=new Promise(r=>{done=r;});
+ const ask=()=>say("Can you read this word? Tap the picture that matches.");
+ setPrompt("Read the word!",ask);
+ $("#rd").onclick=()=>{ac();sfx.tap();say(item.w);};
+ $("#so").onclick=async()=>{ac();sfx.tap();if(!locked)await soundOut(item,wc);};
+ const pics={};
+ opts.forEach((o,i)=>{
+  const b=document.createElement("button");
+  b.className="pic";b.style.animationDelay=(i*.3)+"s";b.textContent=o.e;
+  pics[o.w]=b;
+  b.onclick=async()=>{
+   if(locked||t!==run)return;
+   ac();
+   if(o.w===item.w){
+    locked=true;b.classList.add("right");
+    await soundOut(item,wc);
+    if(t!==run)return;
+    wc.classList.add("cheer");
+    addStar();cheerAll();
+    await say("Yes! The word is "+item.w+"!");
+    await wait(500);
+    done();
+   }else{
+    tries++;sfx.oops();
+    b.classList.remove("wiggle");void b.offsetWidth;b.classList.add("wiggle");
+    mascotDo("shakeit","Try again!");
+    if(tries>=2){
+     pics[item.w].classList.add("glow");
+     locked=true;
+     await say("Let's sound it out together.");
+     await soundOut(item,wc);
+     locked=false;
+    }else{
+     say("That is a "+o.w+". Read the word again!");
+    }
+   }
+  };
+  $("#pics").appendChild(b);
+ });
+ await wait(350);
+ if(t===run)ask();
+ await fin;
+}
+
+async function playRead(t){
+ const items=shuffle(EASY).slice(0,3).concat(shuffle(HARD).slice(0,2));
+ for(let i=0;i<ROUNDS;i++){
+  if(t!==run)return;
+  setDots(i);
+  await readRound(t,items[i]);
+ }
+ finish(t,"read");
+}
+
+const GAMES={
+ letters:{title:"Letter Eggs",fn:playLetters},
+ safari:{title:"Sound Safari",fn:playSafari},
+ build:{title:"Build a Word",fn:playBuild},
+ read:{title:"Read and Match",fn:playRead}
+};
+function startGame(id){
+ if(id==="park"){run++;show("park");say("Welcome to Dino Park!");return;}
+ earned=0;run++;
+ const t=run;
+ closeModal();show("game");
+ $("#arena").innerHTML="";
+ GAMES[id].fn(t);
+}
+
+async function finish(t,id){
+ if(t!==run)return;
+ const un=pendingUnlocks.splice(0);
+ sfx.win();confetti(70);mascotDo("jump");
+ let html='<div class="modal"><div class="windino dance">'+dinoSVG(buddy())+'</div><h2>You did it!</h2><div class="earned">⭐ +'+earned+'</div>';
+ un.forEach(d=>{html+='<div class="unlock"><div class="udino dance">'+dinoSVG(d)+'</div><h3>New friend: '+d.name+'!</h3></div>';});
+ html+='<div class="row"><button class="btn mint" id="again">▶ Play again</button><button class="btn sun" id="homeB">🏠 Home</button></div></div>';
+ openModal(html,false);
+ $("#again").onclick=()=>{ac();sfx.tap();startGame(id);};
+ $("#homeB").onclick=goHome;
+ await say("Great job! You finished "+GAMES[id].title+"!");
+ for(const d of un){
+  if(t!==run)return;
+  sfx.roar();
+  await say("You hatched a new dino friend! Say hello to "+d.name+"!");
+ }
+}
+
+function renderPark(){
+ const g=$("#parkGrid");g.innerHTML="";
+ const b=buddy();
+ DINOS.forEach(d=>{
+  const ok=stars>=d.need;
+  const c=document.createElement("button");
+  c.className="pdino"+(ok?"":" locked")+(ok&&d.id===b.id?" buddy":"");
+  c.innerHTML='<div class="pd">'+dinoSVG(d)+'</div><div class="pname">'+(ok?d.name.split("").map(ch=>"<span>"+ch+"</span>").join(""):"???")+'</div>'+(ok?(d.id===b.id?'<div class="need">💛 My buddy</div>':""):'<div class="need">⭐ '+d.need+'</div>');
+  c.onclick=()=>parkTap(d,c,ok);
+  g.appendChild(c);
+ });
+ const next=DINOS.find(d=>stars<d.need);
+ $("#nextInfo").textContent=next?"⭐ "+stars+" / "+next.need+" to hatch the next dino":"🎉 You found every dino!";
+}
+async function parkTap(d,el,ok){
+ ac();
+ if(!ok){
+  sfx.oops();el.classList.remove("shakeit");void el.offsetWidth;el.classList.add("shakeit");
+  say("This egg needs "+(d.need-stars)+" more stars. Keep playing!");
+  return;
+ }
+ const wasBuddy=buddyId===d.id;
+ sfx.roar();
+ const pd=el.querySelector(".pd");
+ pd.classList.remove("dance");void pd.offsetWidth;pd.classList.add("dance");
+ for(let i=0;i<6;i++){
+  const r=el.getBoundingClientRect();
+  sparkle(r.left+Math.random()*r.width,r.top+Math.random()*r.height*.6);
+ }
+ const spans=el.querySelectorAll(".pname span");
+ await say(d.name+"!",{rate:.75});
+ for(let i=0;i<spans.length;i++){
+  spans[i].classList.add("hl");
+  await say(NAME[d.name[i].toLowerCase()],{rate:.8});
+  spans[i].classList.remove("hl");
+ }
+ await say(d.name+"!",{rate:.75});
+ if(!wasBuddy){
+  buddyId=d.id;store.set("buddy",buddyId);
+  renderMascot();renderPark();
+  confetti(20);
+  say(d.name+" is now your buddy!");
+ }
+}
+
+function helpHTML(){
+ const hist=HISTORY.slice().reverse().map(h=>"<li><b>v"+h[0]+"</b> ("+h[1]+"): "+h[2]+"</li>").join("");
+ const dl=DINOS.map(d=>d.name+" at "+d.need+" stars").join(", ");
+ return '<div class="modal help"><h2>❓ Help</h2>'+
+ '<details open><summary>🦕 What is this?</summary><p>Lilysaurus helps you learn to read with dinosaur friends. Every right answer wins a ⭐. Collect stars to hatch new dinos!</p></details>'+
+ '<details><summary>🔘 The buttons</summary><ul><li>🏠 goes back to the game menu.</li><li>🔊 at the top of a game says the question again.</li><li>🔊 / 🔇 at the top turns all sound and voice on or off.</li><li>❓ opens this help.</li><li>Tap anywhere to make sparkles. ✨</li></ul></details>'+
+ '<details><summary>🥚 Letter Eggs</summary><ul><li>Listen to the letter name, then tap the egg with that letter.</li><li>Each egg shows a big capital letter and a small letter.</li><li>The right egg wobbles and a baby dino hatches. You hear the letter sound and a picture word, like B is for bone.</li><li>Wrong egg? Try again. After two tries the right egg glows to help you.</li></ul></details>'+
+ '<details><summary>🪷 Sound Safari</summary><ul><li>You see a picture and hear its word.</li><li>Tap the lily pad with the letter the word starts with.</li><li>Tap the picture any time to hear the word again.</li><li>The first letter lights up pink when you get it right.</li></ul></details>'+
+ '<details><summary>🧩 Build a Word</summary><ul><li>Look at the picture and tap the letter tiles in the right order to spell the word.</li><li>Each tile you tap says its sound. When the word is finished, all the sounds are blended together: c, a, t, cat!</li><li>Tap the picture to hear the word broken into sounds.</li><li>Later words in a game have two letters that team up, like sh, ee, oo, ar and ck. They sit on one tile.</li><li>There are two extra tiles that do not belong.</li></ul></details>'+
+ '<details><summary>📖 Read &amp; Match</summary><ul><li>Read the big word, then tap the picture that matches it.</li><li>🔊 Hear it says the word. 🐾 Sound it out lights up each sound, then says the whole word.</li><li>After two wrong tries the game sounds the word out for you and glows the right picture.</li></ul></details>'+
+ '<details><summary>🦖 Dino Park and stars</summary><ul><li>Tap a dino to hear its name, then the letters of its name one by one.</li><li>Tap a dino to make it your buddy. Your buddy cheers for you in the games.</li><li>New dinos: '+dl+'.</li><li>Locked dinos show as shadows with the number of stars needed.</li></ul></details>'+
+ '<details><summary>👩 Grown-up corner</summary><ul><li>Play together for 10 to 15 minutes at a time. Let her try before helping.</li><li>Use the device volume. The first tap on the screen switches the sound on.</li><li>Voice uses your browser built-in speech. Chrome, Edge and Safari work best. Voices and letter sounds can vary a little between devices.</li><li>Stars and your buddy are saved on this device and browser.</li><li>Words are short and easy at first, then a little harder in later rounds.</li></ul><div class="row"><button class="btn sky tiny" id="resetBtn" style="font-size:16px">Reset stars and dinos</button></div></details>'+
+ '<details><summary>🆕 What is new</summary><ul>'+hist+'</ul><p class="tiny">Version '+VERSION+' - created '+BUILT+'</p></details>'+
+ '<div class="row"><button class="btn mint" id="closeHelp">✔ Got it!</button></div></div>';
+}
+function openHelp(){
+ ac();sfx.tap();
+ openModal(helpHTML(),true);
+ $("#closeHelp").onclick=closeModal;
+ $("#resetBtn").onclick=()=>{
+  if(confirm("Reset all stars and dinos?")){
+   stars=0;buddyId="rex";store.set("stars",0);store.set("buddy","rex");
+   updateHud();renderMascot();if(current==="park")renderPark();closeModal();
+  }
+ };
+}
+
+function setSoundIcon(){$("#soundBtn").textContent=soundOn?"🔊":"🔇";}
+$("#soundBtn").onclick=()=>{
+ soundOn=!soundOn;store.set("sound",soundOn);setSoundIcon();
+ if(!soundOn)stopSpeech();else{ac();sfx.pop();}
+};
+$("#helpBtn").onclick=openHelp;
+$("#homeBtn").onclick=goHome;
+
+document.querySelectorAll(".card").forEach(c=>{
+ c.onclick=()=>{ac();sfx.pop();startGame(c.dataset.game);};
+});
+
+function buildTitle(){
+ const w=$("#titleWord");
+ "Lilysaurus".split("").forEach((ch,i)=>{
+  const s=document.createElement("span");
+  s.textContent=ch;s.style.color=LTRC[i%LTRC.length];s.style.animationDelay=(i*.12)+"s";
+  w.appendChild(s);
+ });
+ $("#titleDino").innerHTML=dinoSVG(DINOS[0]);
+ $("#verStamp").textContent="Version "+VERSION+" • Created "+BUILT;
+}
+$("#titleDino").onclick=()=>{
+ ac();sfx.roar();
+ const d=$("#titleDino");d.classList.remove("dance");void d.offsetWidth;d.classList.add("dance");
+ confetti(14);
+};
+$("#playBtn").onclick=()=>{
+ ac();sfx.good();show("menu");
+ say("Welcome to Lilysaurus! Let's learn to read with dinosaurs!");
+};
+
+buildTitle();
+updateHud();
+setSoundIcon();
+renderMascot();
+$("#homeBtn").style.visibility="hidden";
+</script>
+</body>
+</html>
