@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#a8dcff">
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Lilysaurus - Dino Reading Adventure</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -223,6 +226,8 @@ body{font-family:"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",system-ui,s
 @keyframes talkbob{0%{transform:translateY(0) rotate(-2deg)}100%{transform:translateY(-3px) rotate(2deg)}}
 @keyframes mouthtalk{0%{transform:scaleY(.5)}100%{transform:scaleY(1.5)}}
 @keyframes hopy{0%{transform:translateY(0) scale(1.1,.9)}30%{transform:translateY(-24px) scale(.94,1.1)}60%{transform:translateY(0) scale(1.1,.9)}80%{transform:translateY(-8px)}100%{transform:translateY(0)}}
+#upd{position:fixed;left:50%;transform:translateX(-50%);top:calc(64px + env(safe-area-inset-top));z-index:45;display:none;text-align:center;max-width:94vw}
+#upd.show{display:block;animation:popin .4s}
 @keyframes fadein{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes drift{from{transform:translateX(-25vw)}to{transform:translateX(125vw)}}
 @keyframes bob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-12px) rotate(1.5deg)}}
@@ -247,6 +252,7 @@ body{font-family:"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",system-ui,s
  <div class="hill"></div>
 </div>
 
+<div id="upd"><button class="btn sun sm" id="updBtn">🔄 New version available! Tap to update</button></div>
 <div id="hud">
  <div class="hgroup"><button class="btn round" id="homeBtn" aria-label="Home">🏠</button></div>
  <div class="pill" id="starPill">⭐ <span id="starCount">0</span></div>
@@ -306,8 +312,8 @@ body{font-family:"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",system-ui,s
 <div id="fx"></div>
 
 <script>
-const VERSION="2.6";
-const BUILT="2026-10-04 14:05 PDT";
+const VERSION="2.7";
+const BUILT="2026-10-04 13:51 PDT";
 const ROUNDS=5;
 const CHEERS=["Yay!","Roar-some!","You did it!","Dino-mite!","Great job!","Wow!"];
 const EGGC=["#ff8fbf","#6fc8ff","#ffc94d","#b39bff","#5fdca8"];
@@ -390,7 +396,8 @@ const HISTORY=[
  ["2.3","2026-10-04","Words now fit how you are doing. Mistakes can take you back to easier words and a lower reading level, and getting words right moves you up again. The next word changes right away."],
  ["2.4","2026-10-04","A mistake now matters more. Each mistake takes 3 points away instead of 1, so the reading level goes down faster. The very next word after a mistake is always one level easier, then the words go back to your level."],
  ["2.5","2026-10-04","Dinos move much more now. Tails wag, heads bob, arms swing, wings flap and legs step when they walk. They breathe and look around when they stand still, open their mouths when they talk, and squash and stretch when they jump. The corner pictures are gone."],
- ["2.6","2026-10-04","Grown-ups can now save all the recorded sounds to a file and load that file on another device. Open the recorder and use the Save sounds file and Load sounds file buttons. The recorder button now stays on the menu even when all 32 sounds are done."]
+ ["2.6","2026-10-04","Grown-ups can now save all the recorded sounds to a file and load that file on another device. Open the recorder and use the Save sounds file and Load sounds file buttons. The recorder button now stays on the menu even when all 32 sounds are done."],
+ ["2.7","2026-10-04","The game now checks for updates. When a newer version is online, a yellow New version available button shows near the top. Tap it to get the newest version. There is also a Check for a new version button in Help."]
 ];
 
 const $=s=>document.querySelector(s);
@@ -1647,6 +1654,31 @@ async function finishRec(key,blob){
  }
 }
 
+const verNum=v=>String(v).split(".").map(n=>parseInt(n,10)||0);
+function verNewer(a,b){
+ const x=verNum(a),y=verNum(b);
+ for(let i=0;i<Math.max(x.length,y.length);i++){const d=(x[i]||0)-(y[i]||0);if(d)return d>0;}
+ return false;
+}
+async function checkUpdate(){
+ try{
+  const r=await fetch(location.pathname+"?check="+Date.now(),{cache:"no-store"});
+  if(!r.ok)return -1;
+  const m=(await r.text()).match(/const VERSION="([0-9.]+)"/);
+  if(!m)return -1;
+  if(verNewer(m[1],VERSION)){
+   $("#updBtn").textContent="🔄 New version "+m[1]+" available! Tap to update";
+   $("#upd").classList.add("show");
+   return 1;
+  }
+  return 0;
+ }catch(e){return -1;}
+}
+async function applyUpdate(){
+ $("#updBtn").textContent="Updating...";
+ try{await fetch(location.pathname,{cache:"reload"});}catch(e){}
+ location.replace(location.pathname+"?v="+Date.now());
+}
 function helpHTML(){
  const hist=HISTORY.slice().reverse().map(h=>"<li><b>v"+h[0]+"</b> ("+h[1]+"): "+h[2]+"</li>").join("");
  return '<div class="modal help"><h2>❓ Help</h2>'+
@@ -1663,6 +1695,7 @@ function helpHTML(){
  '<details><summary>🎈 Hangman</summary><ul><li>You see a picture and empty boxes, one for each letter of its word.</li><li>Tap a letter. If it is in the word, it fills its box and you hear its sound. If it is not, a balloon pops 💥 and you hear Pop! Try another letter!</li><li>You have 5 balloons 🎈 for each word.</li><li>Tap the picture to hear the sound of the first letter for a hint.</li><li>Find every letter to win a ⭐. If all the balloons pop, the game says the word and moves on to the next one. There is no star for that word, but you can always play again.</li><li>Each game has 5 words, easy ones first and then harder ones with letters like sh, ee and oo.</li></ul></details>'+
  '<details><summary>🎀 Dress Up</summary><ul><li>Open 🎀 Dress Up from the game menu.</li><li>Pick one of your dinos at the top. Only dinos you have hatched show up. Tap the dino to hear its name.</li><li>Pick a group: 🎩 Hats, 🕶️ Faces, 🧣 Neck, 🎒 Back, 🎨 Colors or ✨ Magic.</li><li>Things you have not bought show a ⭐ price. Tap one to buy it with stars. If you have enough you get it and the dino wears it right away. If not, you hear how many more stars you need.</li><li>Things you own show ✔ Mine. Tap one to wear it. Tap it again to take it off. 🚫 None takes off everything in that group.</li><li>Each dino keeps its own outfit, even after you close the game.</li><li>Colors change the whole dino. Magic rainbow keeps changing color. Magic adds sparkles, hearts, snow, petals or stars floating around.</li><li>Your buddy wears its outfit on the menu and in the games.</li><li>Clothes cost 10 to 60 stars, much less than eggs. Stars are shared between eggs and clothes.</li></ul></details>'+
  '<details><summary>🦖 Dino Park</summary><ul><li>Tap a dino to hear its name, then the letters of its name one by one.</li><li>Tap a dino you have found to make it your buddy. Your buddy walks back and forth along the bottom of the screen while you play games, cheers for you with a speech bubble, and its baby hatches in Letter Eggs.</li><li>Eggs are dinos you have not found yet. Tap an egg to give it a star.</li><li>Your buddy has a yellow outline and a 💛.</li></ul></details>'+
+ '<details><summary>🔄 Getting the newest version</summary><ul><li>The game checks by itself when it opens, and again when you come back to it. If a newer version is ready, a yellow button appears near the top that says New version available.</li><li>Tap the yellow button. The game gets the new version and starts again. Stars, dinos, clothes and recorded sounds are kept.</li><li>You can also press the button below to check right now.</li><li>The check needs an internet connection. If the game is opened from a file on the device, it cannot check.</li><li>Only versions 2.7 and newer can check. If your phone shows an older version, refresh the page once by hand (or open the web address in a private tab) and from then on it will tell you.</li></ul><div class="row"><button class="btn grape sm" id="updCheck">🔄 Check for a new version</button></div><div class="tiny" id="updMsg"></div></details>'+
  '<details><summary>🎙 Record the letter sounds (grown-ups)</summary><ul><li>The computer voice cannot say single letter sounds well, so you can record real ones with the microphone. Your voice is used in all five games.</li><li>Open the recorder with the blue 🎙 button on the game menu or the button below. There are 32 sounds: a to z plus sh, ch, oo, ee, ar and ck.</li><li>Tap a letter, press ⏺ Record, say just the sound (like buh, not bee), then it stops by itself after a moment or press ⏹ Stop. It plays back so you can check it.</li><li>Not happy? Press ⏺ Record again to replace it. 🗑 deletes one. Next sound ▶ jumps to the next one still missing.</li><li>Green letters are done. Any sound you have not recorded still uses the computer voice.</li><li>Recordings are saved on this device and browser, so you only do this once. They stay after you close the game. Clearing the browser data or using a different browser or device means starting again.</li><li>The first time, the browser asks to use the microphone. Tap Allow. Recording needs a secure page (https) or the file opened directly from the device. Speak close to the microphone in a quiet room.</li><li>The game trims the silence at the start and end of each clip and evens out the volume for you.</li><li>Moving your sounds to another device: open the recorder and press ⬇ Save sounds file. A file called lilysaurus-sounds.json goes to your Downloads. Send it to the other device (email, cloud drive, AirDrop or a USB cable), open the game there, open the recorder and press ⬆ Load sounds file, then pick that file. The sounds are added and play right away.</li><li>Loading a file replaces any sound on that device that has the same letter. Other sounds stay as they are. It is a good idea to keep the file as a backup too.</li><li>The recorder button stays on the menu even when all 32 sounds are recorded, so you can always save or load the file.</li></ul><div class="row"><button class="btn grape sm" id="recOpen">🎙 Record letter sounds</button></div></details>'+
  '<details><summary>👩 Grown-up corner</summary><ul><li>Play together for 10 to 15 minutes at a time. Let her try before helping.</li><li>Use the device volume. The first tap on the screen switches the sound on.</li><li>The game spells a few tricky words in a special way just for the voice, like dyno for dino, so they sound right. If you hear another word said wrongly, tell me and I can add it.</li><li>Words and letter names use your browser built-in voice. Chrome, Edge and Safari work best. Voices can vary a little between devices.</li><li>Stars, your dinos, your buddy, the stars inside each egg and recorded sounds are saved on this device and browser.</li><li>The Reset stars and dinos button asks you to tap Yes or No. It takes away all stars, eggs and dinos except Rexy and keeps the recorded sounds.</li><li>If you used version 1.1 or older, the dinos she had already earned are kept and her stars are kept too.</li><li>The voice says each letter and word once on purpose so she is not overwhelmed by repeating. Tap 🔊 to hear a question again.</li><li>Words are short and easy at first, then a little harder in later rounds.</li></ul><div class="row"><button class="btn sky sm" id="resetBtn">Reset stars and dinos</button></div></details>'+
  '<details><summary>🆕 What is new</summary><ul>'+hist+'</ul><p class="tiny">Version '+VERSION+' - created '+BUILT+'</p></details>'+
@@ -1673,6 +1706,12 @@ function openHelp(){
  openModal(helpHTML(),true);
  $("#closeHelp").onclick=closeModal;
  $("#recOpen").onclick=()=>{ac();sfx.tap();openRecorder();};
+ $("#updCheck").onclick=async()=>{
+  ac();sfx.tap();
+  $("#updMsg").textContent="Checking...";
+  const r=await checkUpdate();
+  $("#updMsg").textContent=r===1?"A new version is ready. Close Help and tap the yellow button at the top.":r===0?"You have the newest version. ✔":"Could not check. Are you online?";
+ };
  $("#resetBtn").onclick=()=>{
   sfx.tap();
   openModal('<div class="modal"><h2>Reset everything?</h2><p>This takes away all stars, eggs, clothes and dinos except Rexy. Your recorded sounds are kept.</p><div class="row"><button class="btn sun" id="resetYes">Yes, reset</button><button class="btn mint" id="resetNo">No, keep playing</button></div></div>',true);
@@ -1709,6 +1748,10 @@ function buildTitle(){
  });
  $("#titleDino").innerHTML=dinoSVG(DINOS[0]);
  $("#verStamp").textContent="Version "+VERSION+" • Created "+BUILT;
+$("#updBtn").onclick=()=>{ac();sfx.tap();applyUpdate();};
+setTimeout(checkUpdate,4000);
+setInterval(checkUpdate,600000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)checkUpdate();});
 }
 $("#titleDino").onclick=()=>{
  ac();sfx.roar();
