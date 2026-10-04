@@ -17,7 +17,6 @@ body{font-family:"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",system-ui,s
 #scenery{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
 .cloud{position:absolute;font-size:clamp(50px,9vw,110px);opacity:.92;animation:drift linear infinite}
 .hill{position:absolute;bottom:-14vh;left:-10vw;width:120vw;height:32vh;background:radial-gradient(ellipse at 50% 0,#9cec8f 0,#6cd37a 75%);border-radius:50% 50% 0 0}
-.deco{position:absolute;bottom:3vh;font-size:clamp(40px,8vw,96px)}
 #hud{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;z-index:20;pointer-events:none}
 #hud>*{pointer-events:auto}
 .hgroup{display:flex;gap:8px;align-items:center}
@@ -66,9 +65,14 @@ body{font-family:"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",system-ui,s
 .dot.on{background:var(--sun);opacity:1;transform:scale(1.35)}
 .dot.done{background:var(--mint);opacity:1}
 #arena{flex:1;width:min(920px,100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px}
-#mascot{position:fixed;right:10px;bottom:6px;width:clamp(90px,15vw,150px);z-index:6;pointer-events:none}
-#mascot .bubble{position:absolute;right:60%;bottom:70%;margin:0;opacity:0;transform:scale(.6);transition:all .25s;white-space:nowrap}
-#mascot .bubble.show{opacity:1;transform:scale(1)}
+#mascot{--mw:clamp(90px,15vw,150px);position:fixed;left:0;bottom:6px;width:var(--mw);z-index:6;pointer-events:none;animation:walkx 40s ease-in-out infinite}
+#walker{animation:facing 40s step-end infinite}
+#mascotDino .dwrap{animation:waddle .5s ease-in-out infinite alternate}
+@keyframes walkx{0%,100%{transform:translateX(70px)}50%{transform:translateX(calc(100vw - var(--mw) - 70px))}}
+@keyframes facing{0%{transform:scaleX(-1)}50%{transform:scaleX(1)}}
+@keyframes waddle{0%{transform:translateY(0) rotate(-4deg)}100%{transform:translateY(-9px) rotate(4deg)}}
+#mascot .bubble{position:absolute;left:50%;bottom:105%;margin:0;opacity:0;transform:translateX(-50%) scale(.6);transition:all .25s;width:max-content;max-width:44vw;text-align:center}
+#mascot .bubble.show{opacity:1;transform:translateX(-50%) scale(1)}
 .egg{width:clamp(88px,19vw,160px);height:clamp(112px,25vw,205px);border:0;border-radius:50% 50% 50% 50%/62% 62% 38% 38%;background:radial-gradient(circle at 34% 28%,rgba(255,255,255,.65),transparent 38%),var(--c);box-shadow:inset -8px -12px 0 rgba(0,0,0,.1),0 9px 0 rgba(0,0,0,.16);position:relative;cursor:pointer;animation:bobegg 2.4s ease-in-out infinite;font:inherit;color:#fff;display:grid;place-items:center}
 .egg::before{content:"";position:absolute;width:18%;height:12%;border-radius:50%;background:rgba(255,255,255,.4);left:20%;bottom:24%}
 .egg::after{content:"";position:absolute;width:12%;height:9%;border-radius:50%;background:rgba(255,255,255,.4);right:22%;bottom:36%}
@@ -105,16 +109,51 @@ body{font-family:"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",system-ui,s
 #parkHead h2{margin:0;font-size:clamp(26px,6vw,44px)}
 #parkHead p{margin:0;font-size:clamp(16px,3.2vw,22px);font-weight:500}
 .next{background:#fff;border-radius:999px;padding:6px 18px;font-weight:700;font-size:clamp(16px,3.2vw,22px)}
-#parkGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;width:min(920px,100%);margin-top:12px;padding-bottom:50px}
+#parkGrid,#dressGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;width:min(920px,100%);margin-top:12px;padding-bottom:50px}
 .pdino{border:0;border-radius:32px;background:#ffffffd0;padding:12px 8px 10px;font:inherit;color:var(--ink);cursor:pointer;box-shadow:0 7px 0 rgba(0,0,0,.14);display:flex;flex-direction:column;align-items:center;gap:4px}
 .pdino:active{transform:translateY(5px)}
 .pd{width:80%}
-.pdino.locked .pd{filter:brightness(.25) saturate(0);opacity:.55}
 .pdino.buddy{outline:5px solid var(--sun)}
 .pname{display:flex;gap:3px;font-size:clamp(24px,5vw,34px);font-weight:700}
 .pname span{display:inline-block;transition:transform .2s,color .2s}
 .pname span.hl{transform:scale(1.5);color:var(--pink)}
 .need{font-weight:700;font-size:20px}
+.dwrap{position:relative;width:100%;container-type:inline-size}
+.ov{position:absolute;transform:translate(-50%,-50%);line-height:1;pointer-events:none;z-index:3}
+.o-hat{left:50%;top:12%;font-size:30cqw}
+.o-face{left:50%;top:41%;font-size:26cqw}
+.o-neck{left:50%;top:64%;font-size:22cqw}
+.o-back{left:86%;top:58%;font-size:30cqw}
+.fx{font-size:12cqw;animation:fxf 2.4s ease-in-out infinite}
+.f1{left:12%;top:20%}.f2{left:88%;top:30%;animation-delay:.8s}.f3{left:20%;top:80%;animation-delay:1.6s}
+@keyframes fxf{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.9}50%{transform:translate(-50%,-70%) scale(1.3);opacity:1}}
+@keyframes hue{to{filter:hue-rotate(360deg)}}
+.rb{animation:hue 4s linear infinite}
+#dressStage{width:clamp(190px,40vw,290px);margin:4px auto;cursor:pointer}
+.emo{font-size:clamp(44px,10vw,64px);line-height:1}
+.pdino.worn{outline:5px solid var(--sun)}
+#field{position:relative;width:min(980px,100%);height:calc(100vh - 230px);min-height:320px;flex:none;margin-top:10px;border-radius:36px;background:linear-gradient(#bfe9ff 0 34%,#8fdc6f 34% 100%);overflow:hidden;box-shadow:0 8px 0 rgba(0,0,0,.14)}
+.fdec{position:absolute;font-size:clamp(36px,8vw,76px);pointer-events:none}
+.sdino{position:absolute;width:clamp(64px,12vw,110px);transform:translate(-50%,-100%);transition-property:left,top;transition-timing-function:linear;text-align:center;cursor:pointer}
+.sflip{transition:transform .2s}
+.sname{display:inline-block;font-weight:700;font-size:clamp(14px,2.6vw,20px);background:#fffc;border-radius:12px;padding:0 8px}
+.sbub{position:absolute;left:50%;bottom:100%;transform:translateX(-50%) scale(.6);opacity:0;transition:all .25s;background:#fff;border-radius:18px;padding:6px 12px;font-weight:700;font-size:clamp(14px,2.8vw,22px);width:max-content;max-width:42vw;text-align:center;box-shadow:0 4px 0 rgba(0,0,0,.12);pointer-events:none}
+.sbub.show{opacity:1;transform:translateX(-50%) scale(1)}
+.sdino.walk .dwrap{animation:waddle .5s ease-in-out infinite alternate}
+.lives{font-size:clamp(28px,7vw,48px);letter-spacing:4px;min-height:1.3em}
+.tile.used{opacity:.3;pointer-events:none}
+.hatchegg{width:clamp(70px,14vw,110px);height:clamp(90px,18vw,140px)}
+.pegg{margin:0 auto;width:70%;max-width:130px;height:auto;aspect-ratio:4/5}
+.pegg .up{font-size:clamp(30px,8vw,56px)}
+.crack{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:2}
+.crack path{fill:none;stroke:#4a2f45;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset .7s ease-out}
+@keyframes crackwob{0%{transform:rotate(-4deg) scale(1)}100%{transform:rotate(4deg) scale(1.04)}}
+@keyframes burstegg{0%{transform:scale(1.04);filter:brightness(1)}60%{transform:scale(1.25);filter:brightness(2)}100%{transform:scale(1.5);opacity:0;filter:brightness(3)}}
+.egg.l1{animation:crackwob 1.6s ease-in-out infinite alternate}
+.egg.l2{animation:crackwob .8s ease-in-out infinite alternate}
+.egg.l3{animation:crackwob .35s ease-in-out infinite alternate}
+.egg.burst{animation:burstegg .5s forwards}
+.hatchegg .up{font-size:clamp(34px,8vw,60px)}
 #overlay{position:fixed;inset:0;background:rgba(74,59,107,.62);display:none;place-items:center;z-index:50;padding:14px}
 #overlay.on{display:grid}
 .modal{background:#fff;border-radius:36px;padding:24px;width:min(600px,94vw);max-height:90vh;overflow:auto;text-align:center;animation:popin .4s;box-shadow:0 10px 0 rgba(0,0,0,.2)}
@@ -132,6 +171,9 @@ body{font-family:"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",system-ui,s
 .help li{margin:5px 0}
 .help .row{justify-content:center;margin-top:12px}
 .tiny{font-size:14px}
+.levelbox{background:#fff;border-radius:24px;padding:8px 20px;font-weight:700;font-size:clamp(16px,3.2vw,22px);text-align:center;box-shadow:0 5px 0 rgba(0,0,0,.12);cursor:pointer;margin:4px 0 10px;width:min(460px,100%)}
+.lvbar{height:10px;border-radius:6px;background:#e9e4f5;margin:6px 0;overflow:hidden}
+.lvbar i{display:block;height:100%;background:var(--mint);border-radius:6px}
 .rec{animation:none}
 .rec h2{margin-bottom:2px}
 .chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0}
@@ -145,6 +187,42 @@ body{font-family:"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",system-ui,s
 #fx{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
 .conf{position:absolute;top:0;animation:fall linear forwards}
 .spark{position:absolute;font-size:30px;transform:translate(-50%,-50%);animation:rise .8s ease-out forwards}
+.dsvg g{transform-box:fill-box}
+.dsvg g.tl{transform-origin:0% 60%;animation:tailwag 2.6s ease-in-out infinite}
+.dsvg g.bd{transform-origin:50% 100%;animation:breathe 3.2s ease-in-out infinite}
+.dsvg g.hd{transform-origin:50% 90%;animation:headidle 5s ease-in-out infinite}
+.dsvg g.am1{transform-origin:70% 30%;animation:armL 2.4s ease-in-out infinite}
+.dsvg g.am2{transform-origin:30% 30%;animation:armR 2.8s ease-in-out infinite}
+.dsvg g.wl{transform-origin:100% 70%;animation:flapL 1.1s ease-in-out infinite}
+.dsvg g.wr{transform-origin:0% 70%;animation:flapR 1.1s ease-in-out infinite}
+.dsvg g.lg1,.dsvg g.lg2{transform-origin:50% 0%}
+.dsvg path.mo{transform-box:fill-box;transform-origin:50% 0%}
+#mascotDino .dsvg g.lg1,.sdino.walk .dsvg g.lg1{animation:step .5s ease-in-out infinite alternate}
+#mascotDino .dsvg g.lg2,.sdino.walk .dsvg g.lg2{animation:step .5s ease-in-out infinite alternate-reverse}
+#mascotDino .dsvg g.tl,.sdino.walk .dsvg g.tl{animation:tailwag .55s ease-in-out infinite}
+#mascotDino .dsvg g.bd,.sdino.walk .dsvg g.bd{animation:bodysq .5s ease-in-out infinite alternate}
+#mascotDino .dsvg g.hd,.sdino.walk .dsvg g.hd{animation:headbob .5s ease-in-out infinite alternate}
+#mascotDino .dsvg g.am1,.sdino.walk .dsvg g.am1{animation:armL .5s ease-in-out infinite}
+#mascotDino .dsvg g.am2,.sdino.walk .dsvg g.am2{animation:armR .5s ease-in-out infinite}
+#mascotDino .dsvg g.wl,.sdino.walk .dsvg g.wl{animation-duration:.45s}
+#mascotDino .dsvg g.wr,.sdino.walk .dsvg g.wr{animation-duration:.45s}
+.sdino.talk .dsvg g.hd{animation:talkbob .35s ease-in-out infinite alternate}
+.sdino.talk .dsvg path.mo{animation:mouthtalk .3s ease-in-out infinite alternate}
+.sdino.hop .dwrap{animation:hopy .7s ease-out}
+.sdino.hop .dsvg g.am1,.sdino.hop .dsvg g.am2{animation-duration:.25s}
+@keyframes tailwag{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(10deg)}}
+@keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.025,1.05)}}
+@keyframes headidle{0%,100%{transform:rotate(0) translateY(0)}30%{transform:rotate(-3deg) translateY(-1px)}60%{transform:rotate(3deg) translateY(1px)}}
+@keyframes armL{0%,100%{transform:rotate(0)}50%{transform:rotate(-16deg)}}
+@keyframes armR{0%,100%{transform:rotate(0)}50%{transform:rotate(16deg)}}
+@keyframes flapL{0%,100%{transform:rotate(10deg) scaleY(1)}50%{transform:rotate(-16deg) scaleY(.85)}}
+@keyframes flapR{0%,100%{transform:rotate(-10deg) scaleY(1)}50%{transform:rotate(16deg) scaleY(.85)}}
+@keyframes step{0%{transform:translateY(0) rotate(14deg)}100%{transform:translateY(-8px) rotate(-14deg)}}
+@keyframes bodysq{0%{transform:scale(1.03,.96)}100%{transform:scale(.98,1.04)}}
+@keyframes headbob{0%{transform:translateY(1px) rotate(-3deg)}100%{transform:translateY(-3px) rotate(3deg)}}
+@keyframes talkbob{0%{transform:translateY(0) rotate(-2deg)}100%{transform:translateY(-3px) rotate(2deg)}}
+@keyframes mouthtalk{0%{transform:scaleY(.5)}100%{transform:scaleY(1.5)}}
+@keyframes hopy{0%{transform:translateY(0) scale(1.1,.9)}30%{transform:translateY(-24px) scale(.94,1.1)}60%{transform:translateY(0) scale(1.1,.9)}80%{transform:translateY(-8px)}100%{transform:translateY(0)}}
 @keyframes fadein{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes drift{from{transform:translateX(-25vw)}to{transform:translateX(125vw)}}
 @keyframes bob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-12px) rotate(1.5deg)}}
@@ -153,7 +231,7 @@ body{font-family:"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",system-ui,s
 @keyframes wiggle{0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}40%{transform:translateX(12px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}
 @keyframes popin{0%{transform:scale(.2)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
 @keyframes dance{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-22px) rotate(-7deg)}50%{transform:translateY(0) rotate(0)}75%{transform:translateY(-22px) rotate(7deg)}}
-@keyframes jump{0%,100%{transform:translateY(0)}40%{transform:translateY(-44px) scale(1.08)}}
+@keyframes jump{0%,100%{transform:translateY(0) scale(1,1)}12%{transform:translateY(0) scale(1.14,.84)}40%{transform:translateY(-48px) scale(.93,1.12)}70%{transform:translateY(0) scale(1.12,.86)}85%{transform:translateY(0) scale(.97,1.04)}}
 @keyframes blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
 @keyframes fall{from{transform:translateY(-10vh) rotate(0)}to{transform:translateY(112vh) rotate(540deg)}}
 @keyframes rise{from{opacity:1;transform:translate(-50%,-50%) scale(.6)}to{opacity:0;transform:translate(-50%,-150%) scale(1.4)}}
@@ -167,10 +245,6 @@ body{font-family:"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",system-ui,s
  <div class="cloud" style="top:20vh;animation-duration:95s;animation-delay:-40s">☁️</div>
  <div class="cloud" style="top:5vh;animation-duration:120s;animation-delay:-80s;font-size:clamp(34px,6vw,70px)">☁️</div>
  <div class="hill"></div>
- <div class="deco" style="left:2vw">🌴</div>
- <div class="deco" style="left:12vw;font-size:clamp(30px,6vw,70px)">🌿</div>
- <div class="deco" style="right:2vw">🌋</div>
- <div class="deco" style="right:13vw;font-size:clamp(30px,6vw,70px)">🌺</div>
 </div>
 
 <div id="hud">
@@ -189,11 +263,15 @@ body{font-family:"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",system-ui,s
 
 <section class="screen" id="menu">
  <div class="menurow"><div class="menubuddy bobbing" id="menuBuddy"></div><div class="bubble" id="menuSay">Pick a game!</div></div>
+ <div class="levelbox" id="levelBox"></div>
  <div class="grid">
   <button class="card" data-game="letters" style="background:#ff8fb8"><span class="ic">🥚</span>Letter Eggs<small>Find the letter</small></button>
-  <button class="card" data-game="safari" style="background:#3fb8e8"><span class="ic">🪷</span>Sound Safari<small>First sounds</small></button>
+  <button class="card" data-game="safari" style="background:#3fb8e8"><span class="ic">🦁</span>Sound Safari<small>First sounds</small></button>
   <button class="card" data-game="build" style="background:#a070f0"><span class="ic">🧩</span>Build a Word<small>Spell it out</small></button>
   <button class="card" data-game="read" style="background:#f29a2e"><span class="ic">📖</span>Read &amp; Match<small>Read the word</small></button>
+  <button class="card" data-game="hangman" style="background:#5c6bc0"><span class="ic">🎈</span>Hangman<small>Save the balloons</small></button>
+  <button class="card" data-game="zoo" style="background:#43a047"><span class="ic">🦒</span>Dino Safari<small>Watch them chat</small></button>
+  <button class="card" data-game="dress" style="background:#e85d9a"><span class="ic">🎀</span>Dress Up<small>Hats and more</small></button>
   <button class="card" data-game="park" style="background:#3fcf94"><span class="ic">🦖</span>Dino Park<small>Meet your friends</small></button>
  </div>
  <div class="row"><button class="btn sky sm" id="recLink"></button></div>
@@ -203,20 +281,33 @@ body{font-family:"Fredoka","Baloo 2","Chalkboard SE","Comic Sans MS",system-ui,s
  <div class="prompt"><button class="btn round" id="repeat" aria-label="Hear again">🔊</button><div id="promptText"></div></div>
  <div id="dots"></div>
  <div id="arena"></div>
- <div id="mascot"><div class="bubble" id="bubble"></div><div id="mascotDino"></div></div>
+ <div id="mascot"><div class="bubble" id="bubble"></div><div id="walker"><div id="mascotDino"></div></div></div>
 </section>
 
 <section class="screen" id="park">
- <div id="parkHead"><h2>🦖 Dino Park</h2><p>Tap a dino to say hello. Tap again to pick your buddy!</p><div class="next" id="nextInfo"></div></div>
+ <div id="parkHead"><h2>🦖 Dino Park</h2><p>Tap an egg to give it a ⭐. Fill it up and it hatches! Tap a dino to pick your buddy!</p><div class="next" id="nextInfo"></div></div>
  <div id="parkGrid"></div>
+</section>
+
+<section class="screen" id="dress">
+ <div id="parkHead"><h2>🎀 Dress Up</h2><p>Pick a dino, then pick things to wear. Buy new things with ⭐!</p><div class="next" id="dressInfo"></div></div>
+ <div id="dressStage"></div>
+ <div class="chips" id="dressDinos"></div>
+ <div class="row" id="dressTabs"></div>
+ <div id="dressGrid"></div>
+</section>
+
+<section class="screen" id="safari">
+ <div id="parkHead"><h2>🦒 Dino Safari</h2><p>Watch your dino friends walk around and chat. Tap a dino to say hello!</p></div>
+ <div id="field"></div>
 </section>
 
 <div id="overlay"></div>
 <div id="fx"></div>
 
 <script>
-const VERSION="1.1";
-const BUILT="2026-10-01 11:05 PDT";
+const VERSION="2.6";
+const BUILT="2026-10-04 14:05 PDT";
 const ROUNDS=5;
 const CHEERS=["Yay!","Roar-some!","You did it!","Dino-mite!","Great job!","Wow!"];
 const EGGC=["#ff8fbf","#6fc8ff","#ffc94d","#b39bff","#5fdca8"];
@@ -226,7 +317,7 @@ const DIGW={sh:"ship",ch:"chip",oo:"moon",ee:"tree",ar:"star",ck:"duck"};
 const KEYS=LETTERS.concat(Object.keys(DIGW));
 const NAME={a:"ay",b:"bee",c:"see",d:"dee",e:"ee",f:"eff",g:"jee",h:"aitch",i:"eye",j:"jay",k:"kay",l:"el",m:"em",n:"en",o:"oh",p:"pee",q:"cue",r:"are",s:"ess",t:"tee",u:"you",v:"vee",w:"double you",x:"ex",y:"why",z:"zee"};
 const SOUND={a:"aa",b:"bah",c:"kah",d:"dah",e:"eh",f:"fff",g:"gah",h:"hah",i:"ih",j:"jah",k:"kah",l:"lah",m:"mmm",n:"nnn",o:"ah",p:"pah",q:"kwah",r:"rrr",s:"sss",t:"tah",u:"uh",v:"vvv",w:"wah",x:"ks",y:"yah",z:"zzz",sh:"shh",ch:"chh",oo:"ooo",ee:"eee",ar:"arr",ck:"kah"};
-const PIC={a:["apple","🍎"],b:["bone","🦴"],c:["cat","🐱"],d:["dino","🦕"],e:["egg","🥚"],f:["fish","🐟"],g:["grass","🌿"],h:["hat","🎩"],i:["iguana","🦎"],j:["jet","✈️"],k:["kite","🪁"],l:["leaf","🍃"],m:["moon","🌙"],n:["nut","🥜"],o:["octopus","🐙"],p:["pig","🐷"],q:["queen","👑"],r:["rainbow","🌈"],s:["sun","☀️"],t:["tree","🌳"],u:["umbrella","☂️"],v:["volcano","🌋"],w:["whale","🐳"],x:["fox","🦊"],y:["yarn","🧶"],z:["zebra","🦓"]};
+const PIC={a:["apple","🍎"],b:["bone","🦴"],c:["cat","🐱"],d:["dino","🦕"],e:["egg","🥚"],f:["fish","🐟"],g:["grass","🌿"],h:["hat","🎩"],i:["iguana","🦎"],j:["jet","✈️"],k:["kangaroo","🦘"],l:["leaf","🍃"],m:["moon","🌙"],n:["nut","🥜"],o:["octopus","🐙"],p:["pig","🐷"],q:["queen","👑"],r:["rainbow","🌈"],s:["sun","☀️"],t:["tree","🌳"],u:["umbrella","☂️"],v:["volcano","🌋"],w:["whale","🐳"],x:["fox","🦊"],y:["yarn","🧶"],z:["zebra","🦓"]};
 const SAFARI=LETTERS.filter(l=>l!=="x");
 const EASY=[
  {w:"cat",e:"🐱",p:["c","a","t"]},{w:"dog",e:"🐶",p:["d","o","g"]},{w:"sun",e:"☀️",p:["s","u","n"]},
@@ -240,23 +331,73 @@ const HARD=[
  {w:"sheep",e:"🐑",p:["sh","ee","p"]},{w:"ship",e:"🚢",p:["sh","i","p"]},{w:"milk",e:"🥛",p:["m","i","l","k"]},
  {w:"crab",e:"🦀",p:["c","r","a","b"]}
 ];
-const ALLWORDS=EASY.concat(HARD);
+const W3=[
+ {w:"drum",e:"🥁",p:["d","r","u","m"]},{w:"flag",e:"🚩",p:["f","l","a","g"]},{w:"bell",e:"🔔",p:["b","e","l","l"]},
+ {w:"lamp",e:"💡",p:["l","a","m","p"]},{w:"sock",e:"🧦",p:["s","o","ck"]},{w:"snow",e:"❄️",p:["s","n","o","w"]},
+ {w:"hand",e:"✋",p:["h","a","n","d"]},{w:"tent",e:"⛺",p:["t","e","n","t"]},{w:"gift",e:"🎁",p:["g","i","f","t"]},
+ {w:"clap",e:"👏",p:["c","l","a","p"]}
+];
+const W4=[
+ {w:"chick",e:"🐥",p:["ch","i","ck"]},{w:"shell",e:"🐚",p:["sh","e","l","l"]},{w:"farm",e:"🚜",p:["f","ar","m"]},
+ {w:"shark",e:"🦈",p:["sh","ar","k"]},{w:"spoon",e:"🥄",p:["s","p","oo","n"]},{w:"boot",e:"🥾",p:["b","oo","t"]},
+ {w:"sleep",e:"😴",p:["s","l","ee","p"]},{w:"clock",e:"🕐",p:["c","l","o","ck"]},{w:"truck",e:"🚚",p:["t","r","u","ck"]},
+ {w:"chip",e:"🍟",p:["ch","i","p"]}
+];
+const W5=[
+ {w:"dragon",e:"🐉",p:["d","r","a","g","o","n"]},{w:"rabbit",e:"🐰",p:["r","a","b","b","i","t"]},{w:"pencil",e:"✏️",p:["p","e","n","c","i","l"]},
+ {w:"castle",e:"🏰",p:["c","a","s","t","l","e"]},{w:"robot",e:"🤖",p:["r","o","b","o","t"]},{w:"tiger",e:"🐯",p:["t","i","g","e","r"]},
+ {w:"spider",e:"🕷️",p:["s","p","i","d","e","r"]},{w:"rocket",e:"🚀",p:["r","o","c","k","e","t"]},{w:"pumpkin",e:"🎃",p:["p","u","m","p","k","i","n"]},
+ {w:"plant",e:"🌱",p:["p","l","a","n","t"]}
+];
+const LV=[null,EASY,HARD,W3,W4,W5];
+const ALLWORDS=[].concat(EASY,HARD,W3,W4,W5);
+const LVINFO=[null,["Short 3-letter words","4 to 5"],["Letter teams like sh, ee and oo","5 to 6"],["Longer blend words","6"],["Letter teams in new words","6 to 7"],["Long words","7 to 8"]];
+const LVNEED=[0,0,10,25,45,70];
+const LVSTEP=[0,10,15,20,25,25];
+const MISSLOSS=3;
 const DINOS=[
  {id:"rex",name:"Rexy",kind:"rex",color:"#6fd16f",accent:"#ffd166",need:0},
- {id:"tri",name:"Trixie",kind:"tri",color:"#ffa94d",accent:"#ff7eb6",need:10},
- {id:"steg",name:"Stego",kind:"steg",color:"#b58cf0",accent:"#ff8fab",need:25},
- {id:"bronto",name:"Bronty",kind:"bronto",color:"#5bc0eb",accent:"#ffe066",need:45},
- {id:"ptera",name:"Terra",kind:"ptera",color:"#ff8fab",accent:"#ffd0e0",need:70},
- {id:"spiny",name:"Spiny",kind:"spiny",color:"#2ec4b6",accent:"#ff9f1c",need:100}
+ {id:"tri",name:"Trixie",kind:"tri",color:"#ffa94d",accent:"#ff7eb6",need:10,cost:100},
+ {id:"steg",name:"Stego",kind:"steg",color:"#b58cf0",accent:"#ff8fab",need:25,cost:150},
+ {id:"bronto",name:"Bronty",kind:"bronto",color:"#5bc0eb",accent:"#ffe066",need:45,cost:225},
+ {id:"ptera",name:"Terra",kind:"ptera",color:"#ff8fab",accent:"#ffd0e0",need:70,cost:325},
+ {id:"spiny",name:"Spiny",kind:"spiny",color:"#2ec4b6",accent:"#ff9f1c",need:100,cost:450}
 ];
+const MORE=[["Dotty","rex","#ff8fab","#fff3b0"],["Bluey","tri","#5bc0eb","#ffd166"],["Sunny","steg","#ffd23f","#ff8fab"],["Minty","bronto","#7ee8c1","#b39bff"],["Berry","ptera","#9b5de5","#f9c74f"],["Coco","spiny","#b5835a","#ffd6a5"],["Pip","rex","#ffd166","#ef476f"],["Gus","tri","#6fd16f","#ff7eb6"],["Lulu","steg","#ff6b6b","#ffe066"],["Max","bronto","#f4a261","#2a9d8f"],["Ziggy","ptera","#00c2d1","#ff9f1c"],["Penny","spiny","#f15bb5","#fee440"],["Rocky","rex","#8d99ae","#ffd166"],["Daisy","bronto","#ffe66d","#ff6b6b"]];
+const MORECOST=[600,750,900,1050,1200,1400,1600,1800,2000,2250,2500,2750,3000,3300];
+MORE.forEach((m,i)=>DINOS.push({id:"d"+i,name:m[0],kind:m[1],color:m[2],accent:m[3],need:99999,cost:MORECOST[i]}));
+const CATS=[["hat","🎩","Hats"],["face","🕶️","Faces"],["neck","🧣","Neck"],["back","🎒","Back"],["color","🎨","Colors"],["fx","✨","Magic"]];
+const ITEMS=[["hat","🎀","bow",10],["hat","🌸","flower",10],["hat","🧢","cap",15],["hat","👒","sun hat",25],["hat","🎩","top hat",30],["hat","🎓","graduation cap",40],["hat","👑","crown",60],
+["face","👓","glasses",15],["face","🕶️","sunglasses",20],["face","🤡","clown face",30],["face","😷","mask",15],
+["neck","🔔","bell",10],["neck","🧣","scarf",15],["neck","📿","beads",20],["neck","🏅","medal",40],
+["back","🎈","balloon",20],["back","🎒","backpack",25],["back","🦋","butterfly",30],["back","🌈","rainbow",50],
+["color","🌸","rose",20,300],["color","🌊","ocean",20,170],["color","🍇","grape",20,230],["color","🍊","sunset",20,40],["color","🌈","magic rainbow",50,"rb"],
+["fx","✨","sparkles",25],["fx","💖","hearts",30],["fx","❄️","snow",30],["fx","🌼","petals",30],["fx","⭐","stars",35]].map((x,i)=>({id:i,cat:x[0],e:x[1],name:x[2],cost:x[3],tint:x[4]}));
 const HISTORY=[
  ["1.0","2026-10-01","First version: title screen, Letter Eggs, Sound Safari, Build a Word, Read &amp; Match, Dino Park with 6 dinos to unlock, stars, sounds, voice and this help."],
- ["1.1","2026-10-01","Real letter sounds! Grown-ups can record all 32 sounds with the microphone. They are saved on the device and used in every game instead of the computer voice. Letter Eggs now says the letter, then its sound, then the picture word."]
+ ["1.1","2026-10-01","Real letter sounds! Grown-ups can record all 32 sounds with the microphone. They are saved on the device and used in every game instead of the computer voice. Letter Eggs now says the letter, then its sound, then the picture word."],
+ ["1.2","2026-10-04","The voice no longer says a letter or a word twice in a row. Stars are now spent in Dino Park to hatch eggs and find new dino buddies."],
+ ["1.3","2026-10-04","The voice now says dino the right way, like dye-no, instead of dee-no."],
+ ["1.4","2026-10-04","Dinos you have not found yet now hide inside eggs in Dino Park. Tap an egg and it slowly cracks, then hatches into your new dino friend. The big egg at the top is gone."],
+ ["1.5","2026-10-04","Give stars to the eggs! Tap an egg to put a star in it. The more stars an egg gets, the more it cracks and wobbles, until it is full and hatches. Each egg remembers its stars."],
+ ["1.6","2026-10-04","Removed the little dot on eggs with no stars. Fixed the Reset stars and dinos button: it now asks in the game with Yes and No buttons."],
+ ["1.7","2026-10-04","The voice no longer repeats the sounds when you sound out a word. Eggs now cost much more: the first egg needs 100 stars and each one after needs more. One tap now gives an egg up to 10 stars."],
+ ["1.8","2026-10-04","14 new dinos to hatch, 20 in all! A new Dress Up room with hats, glasses, scarves, backpacks, colors and sparkles to buy with stars. Your buddy wears what you picked."],
+ ["1.9","2026-10-04","Your buddy now walks back and forth along the bottom of the screen while you play games."],
+ ["2.0","2026-10-04","New game: Hangman! Guess the hidden word by tapping letters. Wrong letters pop a balloon, so keep your balloons safe."],
+ ["2.1","2026-10-04","New Dino Safari: watch all your dinos walk around and talk to each other. Fixed the missing picture on the Sound Safari button and swapped two pictures that some devices cannot show."],
+ ["2.2","2026-10-04","Words now get harder as you play, with 5 reading levels and over 40 new words. The main menu shows your reading level and a rough age estimate. Tap it to learn more."],
+ ["2.3","2026-10-04","Words now fit how you are doing. Mistakes can take you back to easier words and a lower reading level, and getting words right moves you up again. The next word changes right away."],
+ ["2.4","2026-10-04","A mistake now matters more. Each mistake takes 3 points away instead of 1, so the reading level goes down faster. The very next word after a mistake is always one level easier, then the words go back to your level."],
+ ["2.5","2026-10-04","Dinos move much more now. Tails wag, heads bob, arms swing, wings flap and legs step when they walk. They breathe and look around when they stand still, open their mouths when they talk, and squash and stretch when they jump. The corner pictures are gone."],
+ ["2.6","2026-10-04","Grown-ups can now save all the recorded sounds to a file and load that file on another device. Open the recorder and use the Save sounds file and Load sounds file buttons. The recorder button now stays on the menu even when all 32 sounds are done."]
 ];
 
 const $=s=>document.querySelector(s);
 const rand=a=>a[Math.floor(Math.random()*a.length)];
 const shuffle=a=>{const b=a.slice();for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;};
+const SPOKEN=[[/\bdino(s?)\b/gi,"dyno$1"]];
+const spoken=t=>SPOKEN.reduce((a,r)=>a.replace(r[0],r[1]),t);
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 const store={
  get(k,d){try{const v=localStorage.getItem("lily_"+k);return v===null?d:JSON.parse(v);}catch(e){return d;}},
@@ -264,10 +405,20 @@ const store={
 };
 
 let stars=store.get("stars",0);
+let owned=store.get("owned",null);
+if(!owned){owned=DINOS.filter(d=>d.id==="rex"||stars>=d.need).map(d=>d.id);store.set("owned",owned);}
+let eggProg=store.get("eggprog",{});
+let hatching=false;
 let soundOn=store.get("sound",true);
 let buddyId=store.get("buddy","rex");
-let run=0,current="title",repeatFn=null,earned=0,bubT=null;
-const pendingUnlocks=[];
+let wxp=store.get("wxp",0),levelUp=0,levelDown=0,missRecent=0;
+let lvl=store.get("lvl",null),lp=store.get("lp",0);
+if(lvl===null){
+ lvl=1;for(let i=2;i<=5;i++)if(wxp>=LVNEED[i])lvl=i;
+ lp=Math.min(Math.max(0,wxp-LVNEED[lvl]),LVSTEP[lvl]-1);
+ store.set("lvl",lvl);store.set("lp",lp);
+}
+let zooRun=0,run=0,current="title",repeatFn=null,earned=0,bubT=null;
 const REC={open:false,sel:"a",mr:null,stream:null,timer:null,msg:""};
 const clips={};
 let curSrc=null;
@@ -300,7 +451,8 @@ const sfx={
  win(){[523,659,784,659,784,1047,1319].forEach((f,i)=>tone(f,.3,"triangle",.18,i*.12));},
  roar(){tone(190,.8,"sawtooth",.15,0,60);tone(130,.8,"square",.07,0,45);tone(95,.8,"sawtooth",.1,.05,40);},
  hatch(){tone(200,.08,"square",.12);tone(250,.08,"square",.12,.12);tone(300,.08,"square",.12,.24);tone(900,.35,"triangle",.18,.4,1500);},
- star(){tone(1200,.2,"sine",.15,0,1800);}
+ star(){tone(1200,.2,"sine",.15,0,1800);},
+ crack(){tone(700,.05,"square",.16);tone(420,.08,"square",.13,.05);tone(260,.1,"sawtooth",.1,.1);}
 };
 
 let voice=null;
@@ -322,7 +474,7 @@ function say(text,opts){
   try{
    stopClip();
    speechSynthesis.cancel();
-   const u=new SpeechSynthesisUtterance(text);
+   const u=new SpeechSynthesisUtterance(spoken(text));
    if(voice)u.voice=voice;
    u.lang="en-US";u.rate=opts.rate||0.8;u.pitch=opts.pitch||1.25;u.volume=1;
    let done=false;
@@ -541,31 +693,135 @@ function dinoSVG(d){
  const face='<ellipse cx="62" cy="90" rx="9" ry="6" fill="#ff8fa3" opacity=".65"/><ellipse cx="138" cy="90" rx="9" ry="6" fill="#ff8fa3" opacity=".65"/>'+
   '<g class="eyes"><circle cx="80" cy="72" r="13" fill="#fff" stroke="'+dk+'" stroke-width="3"/><circle cx="120" cy="72" r="13" fill="#fff" stroke="'+dk+'" stroke-width="3"/><circle cx="82" cy="74" r="7" fill="#3b2a4a"/><circle cx="118" cy="74" r="7" fill="#3b2a4a"/><circle cx="85" cy="70" r="3" fill="#fff"/><circle cx="121" cy="70" r="3" fill="#fff"/></g>'+
   '<circle cx="95" cy="88" r="2" fill="'+dk+'"/><circle cx="105" cy="88" r="2" fill="'+dk+'"/>'+
-  '<path d="M86,97 Q100,113 114,97" fill="none" stroke="#5a3a4e" stroke-width="4" stroke-linecap="round"/>'+teeth;
+  '<path class="mo" d="M86,97 Q100,113 114,97" fill="none" stroke="#5a3a4e" stroke-width="4" stroke-linecap="round"/>'+teeth;
  const head='<g'+(ht?' transform="'+ht+'"':"")+'><circle cx="100" cy="76" r="46" fill="'+c+'" '+st+'/>'+extra+face+'</g>';
- return '<svg class="dsvg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">'+back+wings+tail+neck+legs+body+spots+arms+head+'</svg>';
+ return '<svg class="dsvg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">'+back+wings+tail+neck+legs+'<g class="bd">'+body+spots+'</g>'+arms+head+'</svg>';
 }
 
-const unlockedDinos=()=>DINOS.filter(d=>stars>=d.need);
-const buddy=()=>{const d=DINOS.find(x=>x.id===buddyId);return d&&stars>=d.need?d:DINOS[0];};
+const readLevel=()=>lvl;
+function saveLevel(){store.set("lvl",lvl);store.set("lp",lp);}
+function wordWin(){
+ lp++;
+ if(lvl<5&&lp>=LVSTEP[lvl]){lvl++;lp=0;levelUp=lvl;levelDown=0;}
+ if(lvl===5&&lp>LVSTEP[5])lp=LVSTEP[5];
+ saveLevel();
+}
+function wordMiss(){
+ lp-=MISSLOSS;missRecent=1;
+ if(lp<0){
+  if(lvl>1){lvl--;lp=Math.floor(LVSTEP[lvl]/2);levelDown=lvl;levelUp=0;}
+  else lp=0;
+ }
+ saveLevel();
+}
+function nextWord(i,used){
+ let L=readLevel();
+ if(missRecent>0){missRecent--;if(L>1)L--;}
+ const pool=(L>1&&i<2)?[].concat.apply([],LV.slice(1,L)):LV[L];
+ let c=shuffle(pool).filter(x=>used.indexOf(x)<0);
+ if(!c.length)c=shuffle(LV[L]).filter(x=>used.indexOf(x)<0);
+ if(!c.length)c=shuffle(pool);
+ used.push(c[0]);
+ return c[0];
+}
+function updateLevelBox(){
+ const l=readLevel(),i=LVINFO[l];
+ const nx=LVSTEP[l];
+ const pct=l<5?Math.round(lp/nx*100):100;
+ $("#levelBox").innerHTML='📚 Reading level '+l+' • about age '+i[1]+'<div class="tiny">'+i[0]+'</div><div class="lvbar"><i style="width:'+pct+'%"></i></div><div class="tiny">'+(l<5?(nx-lp)+" more right words to reach level "+(l+1):"Top level! 🎉")+'</div>';
+}
+function openLevelInfo(){
+ ac();sfx.tap();
+ const l=readLevel();
+ let h='<div class="modal"><h2>📚 Reading levels</h2><div style="text-align:left">';
+ for(let i=1;i<=5;i++)h+='<p style="margin:6px 0'+(i===l?';background:#fff7d6;border-radius:14px;padding:6px 10px':'')+'"><b>Level '+i+'</b>: '+LVINFO[i][0]+', about age '+LVINFO[i][1]+(i===l?' 👈 you are here':'')+'</p>';
+ h+='</div><p class="tiny">This is only a rough guide. It comes from how many words are read, spelled or guessed right in the games. It is not a test, and every child learns at their own speed.</p><div class="row"><button class="btn mint" id="lvOk">✔ Got it!</button></div></div>';
+ openModal(h,true);
+ $("#lvOk").onclick=closeModal;
+}
+const unlockedDinos=()=>DINOS.filter(d=>owned.indexOf(d.id)>=0);
+const buddy=()=>{const d=DINOS.find(x=>x.id===buddyId);return d&&owned.indexOf(d.id)>=0?d:DINOS[0];};
 
 function updateHud(pop){
  $("#starCount").textContent=stars;
  if(pop){const p=$("#starPill");p.classList.remove("pop");void p.offsetWidth;p.classList.add("pop");}
 }
 function addStar(){
- const before=unlockedDinos().length;
  stars++;earned++;
  store.set("stars",stars);
  updateHud(true);sfx.star();
- const after=unlockedDinos();
- if(after.length>before)pendingUnlocks.push(after[after.length-1]);
 }
 
-function renderMascot(){
- $("#mascotDino").innerHTML=dinoSVG(buddy());
- $("#menuBuddy").innerHTML=dinoSVG(buddy());
+let ownedItems=store.get("items",[]);
+let dressMap=store.get("dress",{});
+let dressSel="rex",dressCat="hat";
+function dressedHTML(d){
+ const dr=dressMap[d.id]||{};
+ const col=dr.color!=null?ITEMS[dr.color]:null;
+ let st="",cl="";
+ if(col){if(col.tint==="rb")cl=" rb";else st=' style="filter:hue-rotate('+col.tint+'deg)"';}
+ let h='<div class="dwrap"><div class="dsvgw'+cl+'"'+st+'>'+dinoSVG(d)+'</div>';
+ ["hat","face","neck","back"].forEach(c=>{if(dr[c]!=null)h+='<span class="ov o-'+c+'">'+ITEMS[dr[c]].e+'</span>';});
+ if(dr.fx!=null){const e=ITEMS[dr.fx].e;h+='<span class="ov fx f1">'+e+'</span><span class="ov fx f2">'+e+'</span><span class="ov fx f3">'+e+'</span>';}
+ return h+'</div>';
 }
+function renderMascot(){
+ $("#mascotDino").innerHTML=dressedHTML(buddy());
+ $("#menuBuddy").innerHTML=dressedHTML(buddy());
+}
+function renderDress(){
+ const d=DINOS.find(x=>x.id===dressSel&&owned.indexOf(x.id)>=0)||buddy();
+ dressSel=d.id;
+ const dr=dressMap[d.id]||{};
+ $("#dressStage").innerHTML=dressedHTML(d);
+ $("#dressInfo").textContent="⭐ You have "+stars;
+ $("#dressDinos").innerHTML="";
+ unlockedDinos().forEach(x=>{
+  const b=document.createElement("button");
+  b.className="chip"+(x.id===d.id?" sel":"");b.textContent=x.name;
+  b.onclick=()=>{ac();sfx.tap();dressSel=x.id;renderDress();};
+  $("#dressDinos").appendChild(b);
+ });
+ $("#dressTabs").innerHTML="";
+ CATS.forEach(c=>{
+  const b=document.createElement("button");
+  b.className="btn sm"+(c[0]===dressCat?" sun":"");b.textContent=c[1]+" "+c[2];
+  b.onclick=()=>{ac();sfx.tap();dressCat=c[0];renderDress();};
+  $("#dressTabs").appendChild(b);
+ });
+ const g=$("#dressGrid");g.innerHTML="";
+ const none=document.createElement("button");
+ none.className="pdino";none.innerHTML='<div class="emo">🚫</div><div class="pname">None</div>';
+ none.onclick=()=>{ac();sfx.tap();delete dressMap[d.id][dressCat];if(!dressMap[d.id])dressMap[d.id]={};store.set("dress",dressMap);renderDress();renderMascot();};
+ if(!dressMap[d.id])dressMap[d.id]={};
+ g.appendChild(none);
+ ITEMS.filter(it=>it.cat===dressCat).forEach(it=>{
+  const has=ownedItems.indexOf(it.id)>=0;
+  const worn=dr[it.cat]===it.id;
+  const c=document.createElement("button");
+  c.className="pdino"+(worn?" worn":"");
+  c.innerHTML='<div class="emo">'+it.e+'</div><div class="pname">'+it.name+'</div><div class="need">'+(worn?"💛 Wearing":has?"✔ Mine":"⭐ "+it.cost)+'</div>';
+  c.onclick=()=>dressTap(d,it);
+  g.appendChild(c);
+ });
+}
+function dressTap(d,it){
+ ac();
+ if(!dressMap[d.id])dressMap[d.id]={};
+ const dr=dressMap[d.id];
+ const has=ownedItems.indexOf(it.id)>=0;
+ if(!has){
+  if(stars<it.cost){sfx.oops();say("You need "+(it.cost-stars)+" more stars for the "+it.name+". Play games to win stars!");return;}
+  stars-=it.cost;store.set("stars",stars);updateHud(true);
+  ownedItems.push(it.id);store.set("items",ownedItems);
+  sfx.good();confetti(30);
+  say("You got the "+it.name+"!");
+ }else{sfx.pop();}
+ if(dr[it.cat]===it.id&&has)delete dr[it.cat];else dr[it.cat]=it.id;
+ store.set("dress",dressMap);
+ renderDress();renderMascot();
+}
+$("#dressStage").onclick=()=>{ac();sfx.roar();const d=DINOS.find(x=>x.id===dressSel);if(d)say(d.name+"!");};
 function mascotDo(cls,text){
  const m=$("#mascotDino");
  m.classList.remove("jump","shakeit");void m.offsetWidth;m.classList.add(cls);
@@ -577,7 +833,7 @@ function mascotDo(cls,text){
 
 function show(id){
  document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("active",s.id===id));
- current=id;stopSpeech();
+ current=id;stopSpeech();if(id==="menu")updateLevelBox();if(id!=="safari")zooRun++;
  $("#homeBtn").style.visibility=id==="title"?"hidden":"visible";
  if(id==="park")renderPark();
  if(id==="menu"||id==="game")renderMascot();
@@ -645,8 +901,6 @@ async function letterRound(t,target,opts){
     $("#reveal").innerHTML=wordCard(p[0],p[1],target);
     const first=p[0].indexOf(target)===0;
     if(first){
-     await say(NAME[target]+".");
-     if(t!==run)return;
      await sound(target);
      if(t!==run)return;
      await say(NAME[target]+" is for "+p[0]+"!");
@@ -690,7 +944,7 @@ async function safariRound(t,target){
  arena.innerHTML='<div class="pic-card" id="pcard">'+emo+'</div><div class="rword" id="sw">'+word+'</div><div class="pond" id="pond"></div>';
  let tries=0,locked=false,done;
  const fin=new Promise(r=>{done=r;});
- const ask=()=>say(word+". What sound does "+word+" start with?");
+ const ask=()=>say("What sound does "+word+" start with?");
  setPrompt("<span class='hl'>"+word+"</span> starts with...",ask);
  $("#pcard").onclick=()=>{ac();sfx.tap();say(word);};
  const pads={};
@@ -708,7 +962,7 @@ async function safariRound(t,target){
     cheerAll();addStar();
     await sound(target);
     if(t!==run)return;
-    await say(word+"! "+word+" starts with "+NAME[target]+"!");
+    await say(word+" starts with "+NAME[target]+"!");
     await wait(500);
     done();
    }else{
@@ -717,9 +971,8 @@ async function safariRound(t,target){
     mascotDo("shakeit","Listen again!");
     if(tries>=2){
      pads[target].classList.add("glow");
-     await say("Listen. "+word+".");
+     await say(word+".");
      await sound(target);
-     await say(word+"!");
     }else{
      await sound(l);
      await say("Hmm, not quite. Try again!");
@@ -747,9 +1000,13 @@ function extraTiles(parts,n){
  const used=parts.join("").split("");
  return shuffle(LETTERS.filter(l=>used.indexOf(l)<0&&["q","x","c","l"].indexOf(l)<0)).slice(0,n);
 }
+let sndTok=0;
 async function hearSounds(item){
- await say(item.w);
- for(const p of item.p){await sound(p,{rate:.7});}
+ const tk=++sndTok;
+ for(const p of item.p){
+  await sound(p,{rate:.7});
+  if(tk!==sndTok)return;
+ }
  await say(item.w);
 }
 
@@ -759,7 +1016,7 @@ async function buildRound(t,item){
  arena.innerHTML='<div class="pic-card" id="pcard">'+item.e+'</div><div class="row" id="slots"></div><div class="row" id="tiles"></div>';
  const slots=[];
  parts.forEach(()=>{const s=document.createElement("div");s.className="slot";$("#slots").appendChild(s);slots.push(s);});
- let idx=0,tries=0,locked=false,done;
+ let idx=0,tries=0,locked=false,missed=false,done;
  const fin=new Promise(r=>{done=r;});
  const ask=()=>say("Can you spell "+item.w+"? Tap the letters in order.");
  setPrompt("Spell <span class='hl'>"+item.w+"</span>",ask);
@@ -780,14 +1037,10 @@ async function buildRound(t,item){
     idx++;tries=0;
     if(idx<parts.length){sound(part,{rate:.7});return;}
     locked=true;
-    await wait(200);
-    for(let k=0;k<parts.length;k++){
-     if(t!==run)return;
-     slots[k].classList.add("hl");
-     await sound(parts[k],{rate:.7});
-     slots[k].classList.remove("hl");
-    }
+    sndTok++;
+    await sound(part,{rate:.7});
     if(t!==run)return;
+    if(!missed)wordWin();
     addStar();cheerAll();
     slots.forEach(s=>{s.style.animation="dance .8s ease-in-out 2";});
     await say(item.w+"! Great spelling!");
@@ -796,6 +1049,7 @@ async function buildRound(t,item){
    }else{
     tries++;sfx.oops();
     b.classList.remove("wiggle");void b.offsetWidth;b.classList.add("wiggle");
+    if(!missed){missed=true;wordMiss();}
     mascotDo("shakeit","Hmm...");
     if(tries>=2){tiles.forEach(x=>{if(x.textContent===parts[idx]&&!x.classList.contains("used"))x.classList.add("glow");});}
     await say("Listen for");
@@ -811,21 +1065,23 @@ async function buildRound(t,item){
 }
 
 async function playBuild(t){
- const items=shuffle(EASY).slice(0,3).concat(shuffle(HARD).slice(0,2));
+ const items=[];
  for(let i=0;i<ROUNDS;i++){
   if(t!==run)return;
   setDots(i);
-  await buildRound(t,items[i]);
+  await buildRound(t,nextWord(i,items));
  }
  finish(t,"build");
 }
 
 async function soundOut(item,wc){
+ const tk=++sndTok;
  const spans=wc.querySelectorAll("span");
  for(let k=0;k<item.p.length;k++){
   spans[k].classList.add("hl");
   await sound(item.p[k],{rate:.7});
   spans[k].classList.remove("hl");
+  if(tk!==sndTok)return;
  }
  await say(item.w,{rate:.8});
 }
@@ -839,10 +1095,11 @@ async function readRound(t,item){
  const wc=$("#wc");
  let tries=0,locked=false,done;
  const fin=new Promise(r=>{done=r;});
+ let sounded=false,missed=false;
  const ask=()=>say("Can you read this word? Tap the picture that matches.");
  setPrompt("Read the word!",ask);
  $("#rd").onclick=()=>{ac();sfx.tap();say(item.w);};
- $("#so").onclick=async()=>{ac();sfx.tap();if(!locked)await soundOut(item,wc);};
+ $("#so").onclick=async()=>{ac();sfx.tap();if(!locked){sounded=true;await soundOut(item,wc);}};
  const pics={};
  opts.forEach((o,i)=>{
   const b=document.createElement("button");
@@ -853,21 +1110,24 @@ async function readRound(t,item){
    ac();
    if(o.w===item.w){
     locked=true;b.classList.add("right");
-    await soundOut(item,wc);
+    if(sounded)await say(item.w);else await soundOut(item,wc);
     if(t!==run)return;
     wc.classList.add("cheer");
+    if(!missed)wordWin();
     addStar();cheerAll();
-    await say("Yes! The word is "+item.w+"!");
+    await say("Yes! You read it!");
     await wait(500);
     done();
    }else{
     tries++;sfx.oops();
     b.classList.remove("wiggle");void b.offsetWidth;b.classList.add("wiggle");
     mascotDo("shakeit","Try again!");
+    if(!missed){missed=true;wordMiss();}
     if(tries>=2){
      pics[item.w].classList.add("glow");
      locked=true;
      await say("Let's sound it out together.");
+     sounded=true;
      await soundOut(item,wc);
      locked=false;
     }else{
@@ -883,16 +1143,157 @@ async function readRound(t,item){
 }
 
 async function playRead(t){
- const items=shuffle(EASY).slice(0,3).concat(shuffle(HARD).slice(0,2));
+ const items=[];
  for(let i=0;i<ROUNDS;i++){
   if(t!==run)return;
   setDots(i);
-  await readRound(t,items[i]);
+  await readRound(t,nextWord(i,items));
  }
  finish(t,"read");
 }
 
+async function hangRound(t,item){
+ const w=item.w,letters=w.split("");
+ const uniq=letters.filter((l,i)=>letters.indexOf(l)===i);
+ const opts=shuffle(uniq.concat(shuffle(LETTERS.filter(l=>uniq.indexOf(l)<0)).slice(0,6)));
+ const arena=$("#arena");
+ arena.innerHTML='<div class="pic-card" id="pcard">'+item.e+'</div><div class="lives" id="lives"></div><div class="row" id="slots"></div><div class="row" id="tiles"></div>';
+ let lives=5,left=letters.length,locked=false,done;
+ const fin=new Promise(r=>{done=r;});
+ const drawLives=()=>{$("#lives").textContent="🎈".repeat(lives)+"💥".repeat(5-lives);};
+ drawLives();
+ const slots=letters.map(()=>{const e=document.createElement("div");e.className="slot";$("#slots").appendChild(e);return e;});
+ const ask=()=>say("Guess the word! Tap the letters. A wrong letter pops a balloon.");
+ setPrompt("Guess the <span class='hl'>word</span>!",ask);
+ $("#pcard").onclick=()=>{ac();sfx.tap();if(!locked)sound(letters[0],{rate:.7});};
+ opts.forEach((l,i)=>{
+  const b=document.createElement("button");
+  b.className="tile";b.style.setProperty("--c",LTRC[i%LTRC.length]);b.style.animationDelay=(i*.2)+"s";
+  b.textContent=l;
+  b.onclick=async()=>{
+   if(locked||t!==run)return;
+   ac();
+   b.classList.add("used");
+   if(letters.indexOf(l)>=0){
+    letters.forEach((c,k)=>{if(c===l){slots[k].textContent=l;slots[k].classList.add("filled");left--;}});
+    sfx.pop();
+    if(left>0){sound(l,{rate:.7});return;}
+    locked=true;
+    await sound(l,{rate:.7});
+    if(t!==run)return;
+    if(lives>=3)wordWin();
+    addStar();cheerAll();
+    slots.forEach(x=>{x.style.animation="dance .8s ease-in-out 2";});
+    await say(w+"! You guessed it!");
+    await wait(500);
+    done();
+   }else{
+    lives--;sfx.oops();drawLives();
+    mascotDo("shakeit","Pop!");
+    if(lives>0){say("Pop! Try another letter!");return;}
+    locked=true;wordMiss();
+    letters.forEach((c,k)=>{slots[k].textContent=c;slots[k].classList.add("filled");});
+    await say("Oh no! The word is "+w+". Let's try the next one!");
+    await wait(500);
+    done();
+   }
+  };
+  $("#tiles").appendChild(b);
+ });
+ await wait(350);
+ if(t===run)ask();
+ await fin;
+}
+async function playHangman(t){
+ const items=[];
+ for(let i=0;i<ROUNDS;i++){
+  if(t!==run)return;
+  setDots(i);
+  await hangRound(t,nextWord(i,items));
+ }
+ finish(t,"hangman");
+}
+let zooDinos=[];
+function zPlace(o,t){o.el.style.transitionDuration=t+"s";o.el.style.left=o.x+"%";o.el.style.top=o.y+"%";o.el.style.zIndex=Math.round(o.y);}
+function zFace(o,tx){o.el.querySelector(".sflip").style.transform=tx>o.x?"scaleX(-1)":"scaleX(1)";}
+function zWalk(o,x,y){
+ const t=Math.max(.8,Math.hypot(x-o.x,(y-o.y)*.6)*.14);
+ zFace(o,x);o.x=x;o.y=y;
+ o.el.classList.add("walk");zPlace(o,t);
+ return wait(t*1000).then(()=>{o.el.classList.remove("walk");});
+}
+async function zSay(o,text,speech){
+ const b=o.el.querySelector(".sbub");
+ b.textContent=text;b.classList.add("show");o.el.classList.add("talk");o.el.style.zIndex=300;
+ await say(speech||text,{pitch:o.pitch,rate:.85,fallback:2200});
+ await wait(300);
+ o.el.classList.remove("talk");b.classList.remove("show");o.el.style.zIndex=Math.round(o.y);
+}
+async function zWander(o,tk){
+ while(tk===zooRun){
+  await wait(500+Math.random()*2500);
+  if(tk!==zooRun)return;
+  if(o.busy)continue;
+  await zWalk(o,10+Math.random()*74,38+Math.random()*38);
+  if(Math.random()<.4&&tk===zooRun){o.el.classList.add("hop");await wait(750);o.el.classList.remove("hop");}
+ }
+}
+function zLines(a,b){
+ const A=a.d.name,B=b.d.name;
+ const L=rand(LETTERS.filter(l=>l!=="x")),p=PIC[L];
+ const W=rand(ALLWORDS);
+ const wd=dressMap[b.d.id]||{};
+ const worn=ITEMS.filter(it=>wd[it.cat]===it.id&&it.cat!=="color"&&it.cat!=="fx");
+ const opts=[
+  ()=>[[a,"Hi "+B+"!"],[b,"Hi "+A+"! Let's play!"]],
+  ()=>[[a,B+", what starts with "+L.toUpperCase()+"?",B+", what starts with "+NAME[L]+"?"],[b,p[1]+" "+p[0]+"!",p[0]+"!"],[a,"Yes! "+L.toUpperCase()+" is for "+p[0]+"!","Yes! "+NAME[L]+" is for "+p[0]+"!"]],
+  ()=>[[a,"Can you spell "+W.w+"?"],[b,W.p.join(" ")+"... "+W.w+"! "+W.e,W.p.map(x=>x.length>1?x:NAME[x]).join(", ")+". "+W.w+"!"]],
+  ()=>[[a,"I see a "+W.w+"! "+W.e],[b,"Wow! I like "+W.w+"!"]],
+  ()=>[[a,"Roar!"],[b,"Roar roar!"],[a,"Ha ha ha!"]],
+  ()=>[[a,"You are my friend!"],[b,"You are my friend too!"]]
+ ];
+ if(worn.length)opts.push(()=>[[a,"I like your "+rand(worn).name+", "+B+"!"],[b,"Thank you, "+A+"!"]]);
+ return rand(opts)();
+}
+async function zChat(tk){
+ await wait(2500);
+ while(tk===zooRun){
+  if(zooDinos.length>1){
+   const two=shuffle(zooDinos).slice(0,2),a=two[0],b=two[1];
+   a.busy=b.busy=true;
+   await zWalk(a,Math.max(10,Math.min(84,b.x+(a.x<b.x?-11:11))),b.y);
+   if(tk!==zooRun)return;
+   zFace(a,b.x);zFace(b,a.x);
+   for(const l of zLines(a,b)){
+    if(tk!==zooRun)return;
+    await zSay(l[0],l[1],l[2]);
+   }
+   a.busy=b.busy=false;
+  }else if(zooDinos.length===1){
+   await zSay(zooDinos[0],"I need friends! Hatch eggs in Dino Park!");
+  }
+  await wait(2500+Math.random()*3000);
+ }
+}
+function startSafari(){
+ const tk=++zooRun;
+ const f=$("#field");
+ f.innerHTML='<span class="fdec" style="left:3%;top:6%">🌴</span><span class="fdec" style="right:4%;top:6%">🌋</span><span class="fdec" style="left:42%;top:2%">☁️</span><span class="fdec" style="left:70%;top:30%">🌿</span>';
+ zooDinos=unlockedDinos().map((d,i)=>{
+  const el=document.createElement("div");
+  el.className="sdino";
+  el.innerHTML='<div class="sbub"></div><div class="sflip">'+dressedHTML(d)+'</div><div class="sname">'+d.name+'</div>';
+  const o={d:d,el:el,x:10+Math.random()*74,y:40+Math.random()*34,busy:false,pitch:.9+(i%6)*.12};
+  zPlace(o,0);
+  el.onclick=()=>{ac();sfx.pop();zSay(o,"Hi! I am "+d.name+"!");};
+  f.appendChild(el);
+  return o;
+ });
+ zooDinos.forEach(o=>zWander(o,tk));
+ zChat(tk);
+}
 const GAMES={
+ hangman:{title:"Hangman",fn:playHangman},
  letters:{title:"Letter Eggs",fn:playLetters},
  safari:{title:"Sound Safari",fn:playSafari},
  build:{title:"Build a Word",fn:playBuild},
@@ -900,6 +1301,8 @@ const GAMES={
 };
 function startGame(id){
  if(id==="park"){run++;show("park");say("Welcome to Dino Park!");return;}
+ if(id==="zoo"){run++;show("safari");startSafari();say("Welcome to the Dino Safari!");return;}
+ if(id==="dress"){run++;show("dress");dressSel=buddyId;renderDress();say("Let's dress up!");return;}
  earned=0;run++;
  const t=run;
  closeModal();show("game");
@@ -909,43 +1312,125 @@ function startGame(id){
 
 async function finish(t,id){
  if(t!==run)return;
- const un=pendingUnlocks.splice(0);
+ const eggReady=stars>0&&owned.length<DINOS.length;
+ const lu=levelUp,ld=levelDown;levelUp=0;levelDown=0;
  sfx.win();confetti(70);mascotDo("jump");
  let html='<div class="modal"><div class="windino dance">'+dinoSVG(buddy())+'</div><h2>You did it!</h2><div class="earned">⭐ +'+earned+'</div>';
- un.forEach(d=>{html+='<div class="unlock"><div class="udino dance">'+dinoSVG(d)+'</div><h3>New friend: '+d.name+'!</h3></div>';});
+ if(eggReady)html+='<div class="unlock"><div class="udino dance"><div class="egg hatchegg glow" style="--c:#ffc94d;margin:0 auto"><span class="eggL"><span class="up">?</span></span></div></div><h3>You have ⭐ to give to the eggs! Visit Dino Park!</h3></div>';
+ if(ld)html+='<div class="unlock"><h3>💪 Let\'s practice level '+ld+' words!</h3><div class="tiny">'+LVINFO[ld][0]+'. You can do it!</div></div>';
+ if(lu)html+='<div class="unlock"><h3>🎉 Level up! Reading level '+lu+'!</h3><div class="tiny">'+LVINFO[lu][0]+'</div></div>';
  html+='<div class="row"><button class="btn mint" id="again">▶ Play again</button><button class="btn sun" id="homeB">🏠 Home</button></div></div>';
  openModal(html,false);
  $("#again").onclick=()=>{ac();sfx.tap();startGame(id);};
  $("#homeB").onclick=goHome;
  await say("Great job! You finished "+GAMES[id].title+"!");
- for(const d of un){
-  if(t!==run)return;
-  sfx.roar();
-  await say("You hatched a new dino friend! Say hello to "+d.name+"!");
- }
+ if(ld&&t===run)await say("Let's practice some easier words. You can do it!");
+ if(lu&&t===run)await say("Level up! You are now reading level "+lu+"!");
+ if(eggReady&&t===run)await say("You have stars to give to the eggs! Visit Dino Park!");
 }
 
+function crackOffset(prog,cost,k){
+ const f=Math.max(0,Math.min(1,(prog/cost-k/3)*3));
+ return Math.round(100-f*100);
+}
+function eggLevel(prog,cost){
+ if(prog<=0)return 0;
+ const f=prog/cost;
+ return f<1/3?1:f<2/3?2:3;
+}
+function eggHTML(i,d){
+ const pr=eggProg[d.id]||0;
+ const lv=eggLevel(pr,d.cost);
+ let paths="";
+ [["k1","M50,16 L42,38 L56,50 L44,66"],["k2","M56,50 L74,58 L66,76"],["k3","M44,66 L28,74 L38,94 L54,102 L68,92"]].forEach((x,k)=>{
+  const o=crackOffset(pr,d.cost,k);
+  paths+='<path class="'+x[0]+'" pathLength="100" style="stroke-dashoffset:'+o+';opacity:'+(o>=100?0:1)+'" d="'+x[1]+'"/>';
+ });
+ return '<span class="egg pegg'+(lv?" l"+lv:"")+'" style="--c:'+EGGC[i%EGGC.length]+'"><span class="eggL"><span class="up">?</span></span><svg class="crack" viewBox="0 0 100 125" preserveAspectRatio="none">'+paths+'</svg></span>';
+}
+function eggLabel(d){return "⭐ "+(eggProg[d.id]||0)+" / "+d.cost;}
+function updateNext(){
+ const all=owned.length>=DINOS.length;
+ $("#nextInfo").textContent=all?"🎉 You found every dino!":"⭐ You have "+stars+" to give";
+}
 function renderPark(){
  const g=$("#parkGrid");g.innerHTML="";
  const b=buddy();
- DINOS.forEach(d=>{
-  const ok=stars>=d.need;
+ DINOS.forEach((d,i)=>{
+  const ok=owned.indexOf(d.id)>=0;
   const c=document.createElement("button");
-  c.className="pdino"+(ok?"":" locked")+(ok&&d.id===b.id?" buddy":"");
-  c.innerHTML='<div class="pd">'+dinoSVG(d)+'</div><div class="pname">'+(ok?d.name.split("").map(ch=>"<span>"+ch+"</span>").join(""):"???")+'</div>'+(ok?(d.id===b.id?'<div class="need">💛 My buddy</div>':""):'<div class="need">⭐ '+d.need+'</div>');
+  c.className="pdino"+(ok&&d.id===b.id?" buddy":"");
+  c.dataset.id=d.id;
+  if(ok){
+   c.innerHTML='<div class="pd">'+dinoSVG(d)+'</div><div class="pname">'+d.name.split("").map(ch=>"<span>"+ch+"</span>").join("")+'</div>'+(d.id===b.id?'<div class="need">💛 My buddy</div>':"");
+  }else{
+   c.innerHTML='<div class="pd">'+eggHTML(i,d)+'</div><div class="pname">???</div><div class="need">'+eggLabel(d)+'</div>';
+  }
   c.onclick=()=>parkTap(d,c,ok);
   g.appendChild(c);
  });
- const next=DINOS.find(d=>stars<d.need);
- $("#nextInfo").textContent=next?"⭐ "+stars+" / "+next.need+" to hatch the next dino":"🎉 You found every dino!";
+ updateNext();
+}
+function updateEgg(d,el){
+ const egg=el.querySelector(".egg");
+ const pr=eggProg[d.id]||0;
+ egg.classList.remove("l1","l2","l3");
+ const lv=eggLevel(pr,d.cost);
+ if(lv)egg.classList.add("l"+lv);
+ ["k1","k2","k3"].forEach((n,k)=>{const o=crackOffset(pr,d.cost,k);const pa=egg.querySelector("."+n);pa.style.strokeDashoffset=o;pa.style.opacity=o>=100?0:1;});
+ el.querySelector(".need").textContent=eggLabel(d);
+}
+async function giveStar(d,el){
+ ac();
+ if(hatching)return;
+ const egg=el.querySelector(".egg");
+ if(stars<1){
+  sfx.oops();egg.classList.remove("wiggle");void egg.offsetWidth;egg.classList.add("wiggle");
+  setTimeout(()=>egg.classList.remove("wiggle"),600);
+  say("You need stars for this egg. Play games to win stars!");
+  return;
+ }
+ const need=d.cost-(eggProg[d.id]||0);
+ const give=Math.min(10,stars,need);
+ stars-=give;store.set("stars",stars);
+ eggProg[d.id]=(eggProg[d.id]||0)+give;store.set("eggprog",eggProg);
+ updateHud(true);updateNext();
+ const pr=eggProg[d.id];
+ const left=d.cost-pr;
+ const r=egg.getBoundingClientRect();
+ for(let n=0;n<5;n++)sparkle(r.left+Math.random()*r.width,r.top+Math.random()*r.height);
+ sfx.star();sfx.crack();
+ updateEgg(d,el);
+ if(left>0){
+  egg.classList.remove("wiggle");void egg.offsetWidth;egg.classList.add("wiggle");
+  setTimeout(()=>{egg.classList.remove("wiggle");},600);
+  say(left===1?"One more star!":left+" more stars!");
+  return;
+ }
+ hatching=true;
+ stopSpeech();
+ egg.classList.remove("wiggle");
+ say("It is hatching!");
+ await wait(1300);
+ sfx.crack();
+ await wait(500);
+ sfx.hatch();egg.classList.add("burst");
+ await wait(500);
+ owned.push(d.id);store.set("owned",owned);
+ delete eggProg[d.id];store.set("eggprog",eggProg);
+ buddyId=d.id;store.set("buddy",buddyId);
+ hatching=false;
+ renderMascot();
+ if(current==="park")renderPark();
+ sfx.roar();confetti(70);
+ openModal('<div class="modal"><div class="udino dance">'+dinoSVG(d)+'</div><h2>New friend: '+d.name+'!</h2><div class="earned">💛 '+d.name+' is now your buddy!</div><div class="row"><button class="btn mint" id="hatchOk">✔ Yay!</button></div></div>',true);
+ $("#hatchOk").onclick=()=>{sfx.tap();closeModal();};
+ await say("You hatched a new dino friend! Say hello to "+d.name+"!");
 }
 async function parkTap(d,el,ok){
  ac();
- if(!ok){
-  sfx.oops();el.classList.remove("shakeit");void el.offsetWidth;el.classList.add("shakeit");
-  say("This egg needs "+(d.need-stars)+" more stars. Keep playing!");
-  return;
- }
+ if(!ok){giveStar(d,el);return;}
+ if(hatching)return;
  const wasBuddy=buddyId===d.id;
  sfx.roar();
  const pd=el.querySelector(".pd");
@@ -961,7 +1446,6 @@ async function parkTap(d,el,ok){
   await say(NAME[d.name[i].toLowerCase()],{rate:.8});
   spans[i].classList.remove("hl");
  }
- await say(d.name+"!",{rate:.75});
  if(!wasBuddy){
   buddyId=d.id;store.set("buddy",buddyId);
   renderMascot();renderPark();
@@ -974,8 +1458,8 @@ function recCount(){return KEYS.filter(k=>clips[k]).length;}
 function refreshRecBadge(){
  const n=recCount();
  const b=$("#recLink");
- b.style.display=n>=KEYS.length?"none":"";
- b.textContent="🎙 Grown-up: record letter sounds ("+n+"/"+KEYS.length+")";
+ b.style.display="";
+ b.textContent="🎙 Grown-up: record letter sounds ("+n+"/"+KEYS.length+(n>=KEYS.length?" ✔":"")+")";
 }
 function recHint(k){
  if(DIGW[k])return 'Say the sound in "'+DIGW[k]+'".';
@@ -992,7 +1476,61 @@ function recHTML(){
   '<div class="row"><button class="btn'+(REC.mr?" recording":"")+'" id="recGo">'+(REC.mr?"⏹ Stop":"⏺ Record")+'</button><button class="btn mint" id="recPlay"'+(has&&!REC.mr?"":" disabled")+'>▶ Play</button></div>'+
   '<div class="row" style="margin-top:14px"><button class="btn sky sm" id="recNext"'+(REC.mr?" disabled":"")+'>Next sound ▶</button><button class="btn sun sm" id="recDel"'+(has&&!REC.mr?"":" disabled")+'>🗑 Delete</button></div></div>'+
   '<div class="recmsg">'+REC.msg+'</div>'+
+  '<div class="row" style="margin-bottom:8px"><button class="btn sky sm" id="recExp"'+(recCount()&&!REC.mr?"":" disabled")+'>⬇ Save sounds file</button><button class="btn sun sm" id="recImp"'+(REC.mr?" disabled":"")+'>⬆ Load sounds file</button></div>'+
   '<div class="row"><button class="btn mint" id="recDone">✔ Done</button></div></div>';
+}
+function b64of(buf){
+ const u=new Uint8Array(buf);let s="";
+ for(let i=0;i<u.length;i+=8192)s+=String.fromCharCode.apply(null,u.subarray(i,i+8192));
+ return btoa(s);
+}
+function bufOf(b64){
+ const s=atob(b64),u=new Uint8Array(s.length);
+ for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);
+ return u.buffer;
+}
+async function exportSounds(){
+ try{
+  const rows=await clipRows();
+  const out={};let n=0;
+  rows.forEach(r=>{
+   if(KEYS.indexOf(r[0])<0||!r[1]||!r[1].buf)return;
+   out[r[0]]={type:r[1].type||"audio/webm",data:b64of(r[1].buf)};n++;
+  });
+  if(!n){REC.msg="There are no recorded sounds to save yet.";recRender();return;}
+  const blob=new Blob([JSON.stringify({app:"lilysaurus",kind:"sounds",version:VERSION,clips:out})],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="lilysaurus-sounds.json";
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1500);
+  REC.msg="Saved "+n+" sounds to a file called lilysaurus-sounds.json. Look in Downloads.";
+ }catch(e){REC.msg="Could not make the file. Try again.";}
+ recRender();
+}
+function importSounds(){
+ const inp=document.createElement("input");
+ inp.type="file";inp.accept=".json,application/json";
+ inp.onchange=async()=>{
+  const f=inp.files&&inp.files[0];
+  if(!f)return;
+  REC.msg="Loading...";recRender();
+  try{
+   const j=JSON.parse(await f.text());
+   if(!j||j.app!=="lilysaurus"||j.kind!=="sounds"||!j.clips)throw new Error("bad");
+   let n=0;
+   for(const k of KEYS){
+    const c=j.clips[k];
+    if(!c||!c.data)continue;
+    const rec={buf:bufOf(c.data),type:c.type||"audio/webm"};
+    if(await prepClip(k,rec,false)){await clipPut(k,rec);n++;}
+   }
+   try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();}catch(e){}
+   REC.msg=n?"Loaded "+n+" sounds! ✔":"That file had no sounds in it.";
+  }catch(e){REC.msg="That file did not work. Pick the lilysaurus-sounds.json file you saved.";}
+  recRender();refreshRecBadge();
+ };
+ inp.click();
 }
 function recRender(){
  if(!REC.open)return;
@@ -1030,6 +1568,8 @@ function bindRec(){
   delete clips[k];
   REC.msg="Deleted.";recRender();refreshRecBadge();
  };
+ $("#recExp").onclick=exportSounds;
+ $("#recImp").onclick=importSounds;
  $("#recDone").onclick=()=>{
   cancelRec();
   closeModal();
@@ -1109,17 +1649,22 @@ async function finishRec(key,blob){
 
 function helpHTML(){
  const hist=HISTORY.slice().reverse().map(h=>"<li><b>v"+h[0]+"</b> ("+h[1]+"): "+h[2]+"</li>").join("");
- const dl=DINOS.map(d=>d.name+" at "+d.need+" stars").join(", ");
  return '<div class="modal help"><h2>❓ Help</h2>'+
  '<details open><summary>🦕 What is this?</summary><p>Lilysaurus helps you learn to read with dinosaur friends. Every right answer wins a ⭐. Collect stars to hatch new dinos!</p></details>'+
  '<details><summary>🔘 The buttons</summary><ul><li>🏠 goes back to the game menu.</li><li>🔊 at the top of a game says the question again.</li><li>🔊 / 🔇 at the top turns all sound and voice on or off.</li><li>❓ opens this help.</li><li>Tap anywhere to make sparkles. ✨</li></ul></details>'+
- '<details><summary>🥚 Letter Eggs</summary><ul><li>Listen to the letter name, then tap the egg with that letter.</li><li>Each egg shows a big capital letter and a small letter.</li><li>The right egg wobbles and a baby dino hatches. You hear the letter name, then its sound, then a picture word, like B, buh, B is for bone.</li><li>Wrong egg? Try again. After two tries the right egg glows to help you.</li></ul></details>'+
- '<details><summary>🪷 Sound Safari</summary><ul><li>You see a picture and hear its word.</li><li>Tap the lily pad with the letter the word starts with.</li><li>Tap the picture any time to hear the word again.</li><li>The first letter lights up pink when you get it right and you hear its sound.</li><li>Wrong pad? You hear the sound of the letter you tapped. After two tries the right pad glows.</li></ul></details>'+
- '<details><summary>🧩 Build a Word</summary><ul><li>Look at the picture and tap the letter tiles in the right order to spell the word.</li><li>Each tile you tap says its sound. When the word is finished, all the sounds are blended together: c, a, t, cat!</li><li>Tap the picture to hear the word broken into sounds.</li><li>Later words in a game have two letters that team up, like sh, ee, oo, ar and ck. They sit on one tile.</li><li>There are two extra tiles that do not belong.</li></ul></details>'+
- '<details><summary>📖 Read &amp; Match</summary><ul><li>Read the big word, then tap the picture that matches it.</li><li>🔊 Hear it says the word. 🐾 Sound it out lights up each sound, then says the whole word.</li><li>After two wrong tries the game sounds the word out for you and glows the right picture.</li></ul></details>'+
- '<details><summary>🦖 Dino Park and stars</summary><ul><li>Tap a dino to hear its name, then the letters of its name one by one.</li><li>Tap a dino to make it your buddy. Your buddy cheers for you in the games.</li><li>New dinos: '+dl+'.</li><li>Locked dinos show as shadows with the number of stars needed.</li></ul></details>'+
- '<details><summary>🎙 Record the letter sounds (grown-ups)</summary><ul><li>The computer voice cannot say single letter sounds well, so you can record real ones with the microphone. Your voice is used in all four games.</li><li>Open the recorder with the blue 🎙 button on the game menu or the button below. There are 32 sounds: a to z plus sh, ch, oo, ee, ar and ck.</li><li>Tap a letter, press ⏺ Record, say just the sound (like buh, not bee), then it stops by itself after a moment or press ⏹ Stop. It plays back so you can check it.</li><li>Not happy? Press ⏺ Record again to replace it. 🗑 deletes one. Next sound ▶ jumps to the next one still missing.</li><li>Green letters are done. Any sound you have not recorded still uses the computer voice.</li><li>Recordings are saved on this device and browser, so you only do this once. They stay after you close the game. Clearing the browser data or using a different browser or device means starting again.</li><li>The first time, the browser asks to use the microphone. Tap Allow. Recording needs a secure page (https) or the file opened directly from the device. Speak close to the microphone in a quiet room.</li><li>The game trims the silence at the start and end of each clip and evens out the volume for you.</li></ul><div class="row"><button class="btn grape sm" id="recOpen">🎙 Record letter sounds</button></div></details>'+
- '<details><summary>👩 Grown-up corner</summary><ul><li>Play together for 10 to 15 minutes at a time. Let her try before helping.</li><li>Use the device volume. The first tap on the screen switches the sound on.</li><li>Words and letter names use your browser built-in voice. Chrome, Edge and Safari work best. Voices can vary a little between devices.</li><li>Stars, your buddy and recorded sounds are saved on this device and browser.</li><li>Words are short and easy at first, then a little harder in later rounds.</li></ul><div class="row"><button class="btn sky sm" id="resetBtn">Reset stars and dinos</button></div></details>'+
+ '<details><summary>🥚 Letter Eggs</summary><ul><li>Listen to the letter name, then tap the egg with that letter.</li><li>Each egg shows a big capital letter and a small letter.</li><li>The right egg wobbles and a baby dino hatches. You hear the letter sound first, then the letter name with a picture word, like buh, B is for bone. Each one is said only once.</li><li>Wrong egg? Try again. After two tries the right egg glows to help you.</li></ul></details>'+
+ '<details><summary>🦁 Sound Safari</summary><ul><li>You see a picture and hear its word.</li><li>Tap the lily pad with the letter the word starts with.</li><li>Tap the picture any time to hear the word again.</li><li>The first letter lights up pink when you get it right. You hear its sound, then a sentence like bone starts with B.</li><li>Wrong pad? You hear the sound of the letter you tapped. After two tries the right pad glows.</li></ul></details>'+
+ '<details><summary>🧩 Build a Word</summary><ul><li>Look at the picture and tap the letter tiles in the right order to spell the word.</li><li>Each tile you tap says its sound once. When the word is finished you hear the whole word, like cat! The sounds are not said again.</li><li>Tap the picture to hear the word broken into sounds and then said whole.</li><li>Later words in a game have two letters that team up, like sh, ee, oo, ar and ck. They sit on one tile.</li><li>There are two extra tiles that do not belong.</li></ul></details>'+
+ '<details><summary>📖 Read &amp; Match</summary><ul><li>Read the big word, then tap the picture that matches it.</li><li>🔊 Hear it says the word. 🐾 Sound it out lights up each sound, then says the whole word. If you tap it again while it is talking, it starts over instead of talking on top of itself.</li><li>If you already sounded the word out and then tap the right picture, you only hear the word, not all the sounds again.</li><li>After two wrong tries the game sounds the word out for you and glows the right picture.</li></ul></details>'+
+ '<details><summary>🥚 Hatching eggs and new buddies</summary><ul><li>Every right answer wins a ⭐. Stars are spent, like coins, on the eggs in Dino Park.</li><li>Open 🦖 Dino Park from the game menu. Dinos you have not met yet are hiding inside eggs with a ? on them.</li><li>Tap an egg to give it up to ten ⭐ at a time. The number under the egg shows how many stars it has and how many it needs, like ⭐ 20 / 100. The number at the top shows how many stars you have left to give.</li><li>The more stars an egg gets, the more it cracks. The cracks grow longer and the egg wobbles faster and faster.</li><li>You hear how many more stars the egg needs. When the last star goes in, the egg shakes, bursts and your new dino friend pops out. It becomes your buddy right away.</li><li>Each egg needs a different number of stars. The first egg needs 100 and every egg after it needs more, up to 3300 for the last one. There are 20 dinos in all. Keep playing to save up! You can share your stars between the eggs however you like.</li><li>Each egg keeps its stars, even after you close the game. A cracked egg stays cracked until you play again.</li><li>No stars left? The egg wiggles and you hear that you need stars. Play a game to win some!</li><li>Which dino is in which egg is a secret until it hatches.</li><li>After a game you hear a message when you have stars to give.</li><li>When you have found every dino, all the eggs are gone and you see a party message.</li></ul></details>'+
+ '<details><summary>🦒 Dino Safari</summary><ul><li>Open 🦒 Dino Safari from the game menu to see all the dinos you have hatched in a big grassy field.</li><li>They walk around by themselves. Each dino wears the clothes you picked in Dress Up.</li><li>Every now and then two dinos walk up to each other and have a chat. You see speech bubbles and hear each dino talk in its own voice. They say hello, ask what starts with a letter, spell a word, talk about a picture, roar and say nice things about the clothes the others wear.</li><li>Tap a dino to hear it say hello.</li><li>With only one dino, it asks for friends. Hatch more eggs in Dino Park to fill the safari!</li><li>Tap 🏠 to leave. Words in the chats are good for reading practice too.</li></ul></details>'+
+ '<details><summary>🦖 How the dinos move</summary><ul><li>Every dino is drawn in parts, so the tail, head, arms, legs and body move on their own.</li><li>Standing still: the dino breathes, wags its tail, tilts its head, swings its arms and blinks. Pterodactyls flap their wings.</li><li>Walking: the legs step one after the other, the body squashes and stretches, the head bobs and the tail swishes fast. Your buddy walks along the bottom of the game screen this way.</li><li>Dino Safari: dinos open their mouths and bob their heads when they talk, and sometimes do a happy hop after they walk.</li><li>When you get a word right your buddy jumps with a squash and stretch, and shakes its head when something is not right.</li></ul></details>'+
+ '<details><summary>📚 Reading levels</summary><ul><li>The words in Build a Word, Read &amp; Match and Hangman get harder as you play. There are 5 reading levels.</li><li>Level 1: short 3-letter words like cat and sun. Level 2: letter teams like sh, ee and oo, in words like fish and moon. Level 3: longer blend words like drum and lamp. Level 4: letter teams in new words like shark and spoon. Level 5: long words like dragon and rabbit.</li><li>Each game has 5 words: the first 2 are easier ones from earlier levels as a warm-up, and the other 3 are at your level.</li><li>You reach the next level by getting words right with no mistakes: 10 words for level 2, then 15, 20 and 25 more for levels 3, 4 and 5. Words in any of the three word games count.</li><li>Mistakes can take you back. A wrong tile in Build a Word, a wrong picture in Read &amp; Match, or running out of balloons in Hangman takes 3 points away. A word with a mistake does not earn a point. Hangman only gives a point if you still have 3 or more balloons.</li><li>The very next word after a mistake is always one level easier, then the words go back to her level. This gives her an easy win to feel good again.</li><li>If the points run out you go down one level to easier words, and you hear a kind message like Let us practice some easier words. You start that level half way up, so it is easy to climb again.</li><li>The next word changes right away, so the words get easier or harder during the game.</li><li>The main menu shows the level, a bar to the next level and a rough age estimate, like about age 5 to 6. Tap it to see all levels.</li><li>The age is only a guide made from the words she gets right in the games. It is not a test and children learn at different speeds. Letter Eggs and Sound Safari are for learning letters and sounds and do not change the level.</li><li>When she moves up a level she sees a level up message and hears it.</li><li>Reset stars and dinos does not reset the reading level.</li></ul></details>'+
+ '<details><summary>🎈 Hangman</summary><ul><li>You see a picture and empty boxes, one for each letter of its word.</li><li>Tap a letter. If it is in the word, it fills its box and you hear its sound. If it is not, a balloon pops 💥 and you hear Pop! Try another letter!</li><li>You have 5 balloons 🎈 for each word.</li><li>Tap the picture to hear the sound of the first letter for a hint.</li><li>Find every letter to win a ⭐. If all the balloons pop, the game says the word and moves on to the next one. There is no star for that word, but you can always play again.</li><li>Each game has 5 words, easy ones first and then harder ones with letters like sh, ee and oo.</li></ul></details>'+
+ '<details><summary>🎀 Dress Up</summary><ul><li>Open 🎀 Dress Up from the game menu.</li><li>Pick one of your dinos at the top. Only dinos you have hatched show up. Tap the dino to hear its name.</li><li>Pick a group: 🎩 Hats, 🕶️ Faces, 🧣 Neck, 🎒 Back, 🎨 Colors or ✨ Magic.</li><li>Things you have not bought show a ⭐ price. Tap one to buy it with stars. If you have enough you get it and the dino wears it right away. If not, you hear how many more stars you need.</li><li>Things you own show ✔ Mine. Tap one to wear it. Tap it again to take it off. 🚫 None takes off everything in that group.</li><li>Each dino keeps its own outfit, even after you close the game.</li><li>Colors change the whole dino. Magic rainbow keeps changing color. Magic adds sparkles, hearts, snow, petals or stars floating around.</li><li>Your buddy wears its outfit on the menu and in the games.</li><li>Clothes cost 10 to 60 stars, much less than eggs. Stars are shared between eggs and clothes.</li></ul></details>'+
+ '<details><summary>🦖 Dino Park</summary><ul><li>Tap a dino to hear its name, then the letters of its name one by one.</li><li>Tap a dino you have found to make it your buddy. Your buddy walks back and forth along the bottom of the screen while you play games, cheers for you with a speech bubble, and its baby hatches in Letter Eggs.</li><li>Eggs are dinos you have not found yet. Tap an egg to give it a star.</li><li>Your buddy has a yellow outline and a 💛.</li></ul></details>'+
+ '<details><summary>🎙 Record the letter sounds (grown-ups)</summary><ul><li>The computer voice cannot say single letter sounds well, so you can record real ones with the microphone. Your voice is used in all five games.</li><li>Open the recorder with the blue 🎙 button on the game menu or the button below. There are 32 sounds: a to z plus sh, ch, oo, ee, ar and ck.</li><li>Tap a letter, press ⏺ Record, say just the sound (like buh, not bee), then it stops by itself after a moment or press ⏹ Stop. It plays back so you can check it.</li><li>Not happy? Press ⏺ Record again to replace it. 🗑 deletes one. Next sound ▶ jumps to the next one still missing.</li><li>Green letters are done. Any sound you have not recorded still uses the computer voice.</li><li>Recordings are saved on this device and browser, so you only do this once. They stay after you close the game. Clearing the browser data or using a different browser or device means starting again.</li><li>The first time, the browser asks to use the microphone. Tap Allow. Recording needs a secure page (https) or the file opened directly from the device. Speak close to the microphone in a quiet room.</li><li>The game trims the silence at the start and end of each clip and evens out the volume for you.</li><li>Moving your sounds to another device: open the recorder and press ⬇ Save sounds file. A file called lilysaurus-sounds.json goes to your Downloads. Send it to the other device (email, cloud drive, AirDrop or a USB cable), open the game there, open the recorder and press ⬆ Load sounds file, then pick that file. The sounds are added and play right away.</li><li>Loading a file replaces any sound on that device that has the same letter. Other sounds stay as they are. It is a good idea to keep the file as a backup too.</li><li>The recorder button stays on the menu even when all 32 sounds are recorded, so you can always save or load the file.</li></ul><div class="row"><button class="btn grape sm" id="recOpen">🎙 Record letter sounds</button></div></details>'+
+ '<details><summary>👩 Grown-up corner</summary><ul><li>Play together for 10 to 15 minutes at a time. Let her try before helping.</li><li>Use the device volume. The first tap on the screen switches the sound on.</li><li>The game spells a few tricky words in a special way just for the voice, like dyno for dino, so they sound right. If you hear another word said wrongly, tell me and I can add it.</li><li>Words and letter names use your browser built-in voice. Chrome, Edge and Safari work best. Voices can vary a little between devices.</li><li>Stars, your dinos, your buddy, the stars inside each egg and recorded sounds are saved on this device and browser.</li><li>The Reset stars and dinos button asks you to tap Yes or No. It takes away all stars, eggs and dinos except Rexy and keeps the recorded sounds.</li><li>If you used version 1.1 or older, the dinos she had already earned are kept and her stars are kept too.</li><li>The voice says each letter and word once on purpose so she is not overwhelmed by repeating. Tap 🔊 to hear a question again.</li><li>Words are short and easy at first, then a little harder in later rounds.</li></ul><div class="row"><button class="btn sky sm" id="resetBtn">Reset stars and dinos</button></div></details>'+
  '<details><summary>🆕 What is new</summary><ul>'+hist+'</ul><p class="tiny">Version '+VERSION+' - created '+BUILT+'</p></details>'+
  '<div class="row"><button class="btn mint" id="closeHelp">✔ Got it!</button></div></div>';
 }
@@ -1129,10 +1674,16 @@ function openHelp(){
  $("#closeHelp").onclick=closeModal;
  $("#recOpen").onclick=()=>{ac();sfx.tap();openRecorder();};
  $("#resetBtn").onclick=()=>{
-  if(confirm("Reset all stars and dinos? Your recorded sounds are kept.")){
-   stars=0;buddyId="rex";store.set("stars",0);store.set("buddy","rex");
-   updateHud();renderMascot();if(current==="park")renderPark();closeModal();
-  }
+  sfx.tap();
+  openModal('<div class="modal"><h2>Reset everything?</h2><p>This takes away all stars, eggs, clothes and dinos except Rexy. Your recorded sounds are kept.</p><div class="row"><button class="btn sun" id="resetYes">Yes, reset</button><button class="btn mint" id="resetNo">No, keep playing</button></div></div>',true);
+  $("#resetNo").onclick=()=>{sfx.tap();closeModal();};
+  $("#resetYes").onclick=()=>{
+   stars=0;buddyId="rex";owned=["rex"];eggProg={};hatching=false;ownedItems=[];dressMap={};store.set("items",[]);store.set("dress",{});
+   store.set("eggprog",{});store.set("stars",0);store.set("buddy","rex");store.set("owned",owned);
+   updateHud(true);renderMascot();if(current==="park")renderPark();
+   closeModal();sfx.pop();
+   say("All reset! Let's collect stars and hatch eggs!");
+  };
  };
 }
 
@@ -1171,6 +1722,8 @@ $("#playBtn").onclick=()=>{
 
 buildTitle();
 updateHud();
+updateLevelBox();
+$("#levelBox").onclick=openLevelInfo;
 setSoundIcon();
 renderMascot();
 refreshRecBadge();
